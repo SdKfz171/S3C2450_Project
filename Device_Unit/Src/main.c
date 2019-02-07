@@ -540,6 +540,7 @@ void StartDefaultTask(void const * argument)
 void StartTask02(void const * argument)
 {
   /* USER CODE BEGIN StartTask02 */
+	uint8_t split_count = 0;
   /* Infinite loop */
   for(;;)
   {
@@ -553,7 +554,17 @@ void StartTask02(void const * argument)
 					printf("%02x%02x%02x%02x", Buffer[0] - 0x30, Buffer[1] - 0x30, Buffer[3] - 0x30, Buffer[4] - 0x30);
 			}
 			else {
-				printf("%02x%02x%02x%02x%02x%02x%02x", 'S', Buffer[0] - 0x30, Buffer[1] - 0x30, Buffer[3] - 0x30, Buffer[4] - 0x30, Buffer[6] - 0x30, Buffer[7] - 0x30);
+				split_count = 0;
+				printf("Buffer : [%s]\r\n", Buffer);
+				if(strlen(Buffer) == 19){
+					for(int i = 0; i < strlen(Buffer); i++){
+						if(Buffer[i] == '/' || Buffer[i] == ':')
+							split_count++;
+					}
+					if(split_count == 5)
+						printf("%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", 'S', Buffer[0] - 0x30, Buffer[1] - 0x30, Buffer[3] - 0x30, Buffer[4] - 0x30, Buffer[6] - 0x30, Buffer[7] - 0x30, Buffer[8] - 0x30, Buffer[9] - 0x30, Buffer[11] - 0x30, Buffer[12] - 0x30, Buffer[14] - 0x30, Buffer[15] - 0x30, Buffer[17] - 0x30, Buffer[18] - 0x30);
+					//				S		M		M		d		d		y		y		y		y		H		H		m		m		s		s						M									M									d									d									y									y									y									y									H										H									m										m									s										s
+				}
 			}
 //			printf("Buffer : [%s]\r\n", Buffer);
 			memset((uint8_t *)Buffer, 0, BUFSIZ);
