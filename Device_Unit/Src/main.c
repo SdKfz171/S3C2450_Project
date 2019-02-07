@@ -540,8 +540,6 @@ void StartDefaultTask(void const * argument)
 void StartTask02(void const * argument)
 {
   /* USER CODE BEGIN StartTask02 */
-	uint8_t ALARM = 0;
-	uint8_t SYNC = 0;
   /* Infinite loop */
   for(;;)
   {
@@ -549,18 +547,13 @@ void StartTask02(void const * argument)
 		if(strlen(Buffer) > 0){
 			if(strlen(Buffer) < 6){
 				printf("%02x", 'A');
-				for(int i = 0; i < strlen(Buffer); i++){
-					if(Buffer[i] == ':'){
-						printf("%02x", ALARM);
-						ALARM = 0;
-						continue;
-					}
-					ALARM = (ALARM * 10) + (Buffer[i] - 0x30);
-				}
-				printf("%02x", ALARM);
+				if(strlen(Buffer) < 5)
+					printf("%02x%02x%02x%02x", 0, Buffer[0] - 0x30, Buffer[2] - 0x30, Buffer[3] - 0x30);
+				else 
+					printf("%02x%02x%02x%02x", Buffer[0] - 0x30, Buffer[1] - 0x30, Buffer[3] - 0x30, Buffer[4] - 0x30);
 			}
 			else {
-				printf("%02x%02x%02x%02x%02x%02x%02x", 'S', Buffer[0], Buffer[1], Buffer[3], Buffer[4], Buffer[6], Buffer[7]);
+				printf("%02x%02x%02x%02x%02x%02x%02x", 'S', Buffer[0] - 0x30, Buffer[1] - 0x30, Buffer[3] - 0x30, Buffer[4] - 0x30, Buffer[6] - 0x30, Buffer[7] - 0x30);
 			}
 //			printf("Buffer : [%s]\r\n", Buffer);
 			memset((uint8_t *)Buffer, 0, BUFSIZ);
