@@ -23,6 +23,13 @@
 
 #define FREQ 1000000
 
+uint16_t year = 19;
+uint8_t month = 2;
+uint8_t date = 8;
+uint8_t hour = 0;
+uint8_t minute = 0;
+uint8_t second = 0;
+
 void __attribute__((interrupt("IRQ"))) RTC_TICK(void);
 
 void gpio_init(){
@@ -40,11 +47,21 @@ void gpio_init(){
 }
 
 void RTC_Init(){
-    rRTCCON = (0x1C0);
+    // rRTCCON = (0x1C0);
 
     rTICNT0 = (0x80);
     rTICNT1 = (0x1);
     rTICNT2 = (0x0);
+
+    rRTCCON = ~(0x1F);
+    rRTCCON = (0x1C1);
+    rBCDYEAR = ((year / 10) << 4) + (year % 10);
+    rBCDMON = ((month / 10) << 4) + (month % 10);
+    rBCDDATE = ((date / 10) << 4) + (date % 10);
+    rBCDHOUR = ((hour / 10) << 4) +(hour % 10);
+    rBCDHOUR = ((minute / 10) << 4) +(minute % 10);
+    rBCDHOUR = ((second / 10) << 4) +(second % 10);
+    //rRTCCON = (0x0);
 }
 
 void RTC_Tick_Init(){
@@ -88,70 +105,25 @@ void delay_ms(int ms){
     delay_us(ms * 1000);
 }
 
-// void I2C_Init(){
-//     // I2C SCL, SDA PIN Init
-//     rGPECON = (0xA0000000);
-//     rGPEUDP = (0xC000);
-
-//     rIICCON = (1 << 7) | (0 << 6) | (1 << 5) |  (0xE); // 송신 클럭 값 = 66000000 / 16 / 15 = 275000
-//     rIICSTAT = (0x10);
-//     rIICADD = SLAVE_ADDR;
-// }
-
-// void I2C_SEND(uint8_t data){
-//     int i;
-//     rIICSTAT = (0xF0);
-//     if(rIICCON & 0x10){
-//         rIICDS = data;
-//         for(i = 0; i < 10; i++);
-//         rIICCON = (0xAE);
-//     }
-// }
-
-// void I2C_RECEIVE(){
-//     rIICADD = ();
-
-//     rIICSTAT = (0xB0);
-//     rIICCON = (0xAE);
-
-// }
-
-void SPI_Init(){
-    CH_CFG0 = 0x4F;
-    CLK_CFG0 = 0x101;
-}
-
-void SPI_Transmit(uint8_t data){
-    SPI_TX_DATA0 = data;
-}
-
 void Main(){
     Uart_Init(115200);
     timer0_init();
     RTC_Init();
     RTC_Tick_Init();
     gpio_init();
-    SPI_Init();
 
     Uart_Printf("Program Started!!\r\n");
     
     while(1){
-        //Uart_Printf("%c", (uint8_t)SPI_RX_DATA0);
-        // SPI_Transmit('0');
-        // Uart_Printf("MOSI : %d", GPEDAT.GPIO_PIN_12);
-        // Uart_Printf("MISO : %d", GPEDAT.GPIO_PIN_13);
-        rGPFDAT = 0x00;
-        rGPGDAT = 0x00;
-        rGPEDAT = 0xFF;
-        // GPGDAT.GPIO_PIN_4 = LOW;
-        // delay_ms(1000);
-        // GPGDAT.GPIO_PIN_4 = HIGH;
-        // delay_ms(1000);
-        
+        GPGDAT.GPIO_PIN_4 = LOW;
+        delay_ms(1000);
+        GPGDAT.GPIO_PIN_4 = HIGH;
+        delay_ms(1000);
+        Uart_Printf("%x %x %x\r\n", rBCDHOUR, rBCDMIN, rBCDSEC);
     }
 }
 
 void __attribute__((interrupt("IRQ"))) RTC_TICK(void){
     ClearPending1(BIT_TICK);
-    // Uart_Printf("%3d sec\t", ++tick);
+    Uart_Printf("TICK INT\r\n");
 }
