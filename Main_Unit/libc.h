@@ -137,51 +137,51 @@ typedef struct {
 } GPCON;
 
 typedef struct {
-    uint8_t  PRESCALER0 : 8;
-    uint8_t  PRESCALER1 : 8;
-    uint8_t  DEAD_ZONE_LEN : 8;
-    uint8_t RESERVED : 8;
+    unsigned char  PRESCALER0 : 8;
+    unsigned char  PRESCALER1 : 8;
+    unsigned char  DEAD_ZONE_LEN : 8;
+    unsigned char RESERVED : 8;
 } TCFG0_;
 
 typedef struct 
 {
-    uint8_t MUX0 : 4;
-    uint8_t MUX1 : 4;
-    uint8_t MUX2 : 4;
-    uint8_t MUX3 : 4;
-    uint8_t MUX4 : 4;
-    uint8_t DMA_MODE : 4;
-    uint8_t RESERVED : 8;
+    unsigned char MUX0 : 4;
+    unsigned char MUX1 : 4;
+    unsigned char MUX2 : 4;
+    unsigned char MUX3 : 4;
+    unsigned char MUX4 : 4;
+    unsigned char DMA_MODE : 4;
+    unsigned char RESERVED : 8;
 } TCFG1_;
 
 typedef struct 
 {
-    uint8_t TIM0_START : 1;
-    uint8_t TIM0_MANUAL_UPDATE : 1;
-    uint8_t TIM0_OUTPUT_INVERTER : 1;
-    uint8_t TIM0_AUTO_RELOAD : 1;
+    unsigned char TIM0_START : 1;
+    unsigned char TIM0_MANUAL_UPDATE : 1;
+    unsigned char TIM0_OUTPUT_INVERTER : 1;
+    unsigned char TIM0_AUTO_RELOAD : 1;
 
-    uint8_t DEAD_ZONE_ENABLE : 1;
-    uint8_t RESERVED : 3;
+    unsigned char DEAD_ZONE_ENABLE : 1;
+    unsigned char RESERVED : 3;
 
-    uint8_t TIM1_START : 1;
-    uint8_t TIM1_MANUAL_UPDATE : 1;
-    uint8_t TIM1_OUTPUT_INVERTER : 1;
-    uint8_t TIM1_AUTO_RELOAD : 1;
+    unsigned char TIM1_START : 1;
+    unsigned char TIM1_MANUAL_UPDATE : 1;
+    unsigned char TIM1_OUTPUT_INVERTER : 1;
+    unsigned char TIM1_AUTO_RELOAD : 1;
     
-    uint8_t TIM2_START : 1;
-    uint8_t TIM2_MANUAL_UPDATE : 1;
-    uint8_t TIM2_OUTPUT_INVERTER : 1;
-    uint8_t TIM2_AUTO_RELOAD : 1;
+    unsigned char TIM2_START : 1;
+    unsigned char TIM2_MANUAL_UPDATE : 1;
+    unsigned char TIM2_OUTPUT_INVERTER : 1;
+    unsigned char TIM2_AUTO_RELOAD : 1;
     
-    uint8_t TIM3_START : 1;
-    uint8_t TIM3_MANUAL_UPDATE : 1;
-    uint8_t TIM3_OUTPUT_INVERTER : 1;
-    uint8_t TIM3_AUTO_RELOAD : 1;
+    unsigned char TIM3_START : 1;
+    unsigned char TIM3_MANUAL_UPDATE : 1;
+    unsigned char TIM3_OUTPUT_INVERTER : 1;
+    unsigned char TIM3_AUTO_RELOAD : 1;
 
-    uint8_t TIM4_START : 1;
-    uint8_t TIM4_MANUAL_UPDATE : 1;
-    uint8_t TIM4_AUTO_RELOAD : 1;
+    unsigned char TIM4_START : 1;
+    unsigned char TIM4_MANUAL_UPDATE : 1;
+    unsigned char TIM4_AUTO_RELOAD : 1;
 } TCON_;
 
 typedef enum {
@@ -209,7 +209,7 @@ typedef enum {
     G5_ = 831,
     A5 = 880,
     A5_ = 932, 
-    B5 = 988,
+    B5 = 988
 } SCALE;
 
 #define GPGCON    (*(volatile GPCON *)0x56000060)
