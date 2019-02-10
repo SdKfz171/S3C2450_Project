@@ -129,6 +129,7 @@ void Sound(uint16_t scale, int duration){
 
         duration -= ((10000 / scale / 10) * 2) * 2;
     }
+    delay_ms(1);
 }
 
 void Main(){
@@ -140,7 +141,50 @@ void Main(){
 
     Uart_Printf("Program Started!!\r\n");
     
-    Sound(C5, 1000);
+    // Buzzer Test 
+    Sound(C3, 500);
+    
+    Sound(D3, 500);
+    
+    Sound(E3, 500);
+    
+    Sound(F3, 500);
+    
+    Sound(G3, 500);
+    
+    Sound(A3, 500);
+    
+    Sound(B3, 500);
+
+    Sound(C4, 500);
+    
+    Sound(D4, 500);
+    
+    Sound(E4, 500);
+    
+    Sound(F4, 500);
+    
+    Sound(G4, 500);
+    
+    Sound(A4, 500);
+    
+    Sound(B4, 500);
+    
+    Sound(C5, 500);
+    
+    Sound(D5, 500);
+    
+    Sound(E5, 500);
+    
+    Sound(F5, 500);
+    
+    Sound(G5, 500);
+    
+    Sound(A5, 500);
+    
+    Sound(B5, 500);
+    
+    Sound(C6, 500);
 
     while(1){
         GPGDAT.GPIO_PIN_4 = LOW;
