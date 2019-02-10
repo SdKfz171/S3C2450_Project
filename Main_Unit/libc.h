@@ -184,49 +184,51 @@ typedef struct
     unsigned char TIM4_AUTO_RELOAD : 1;
 } TCON_;
 
-typedef enum {
-    C4 = 262,
-    C4_ = 278,
-    D4 = 294,
-    D4_ = 311,
-    E4 = 330,
-    F4 = 349,
-    F4_ = 370,
-    G4 = 392,
-    G4_ = 415,
-    A4 = 440,
-    A4_ = 466, 
-    B4 = 494,
+/*
+    옥타브 	    0 	    1 	    2 	    3 	    4 	    5 	    6 	    7 	    8
+    도(C) 	    16      33      65 	    131     262     523     1047    2093 	4186
+    도#(C#)     17      35      69 	    139     278     554     1109 	2218 	4435
+    레(D) 	    18      37      73 	    147     294     587     1175 	2349 	4699
+    레#(D#)     20      39      78 	    156     311     622     1245 	2489 	4978
+    미(E)       21      41      82 	    165     330     659     1319 	2637 	5274
+    파(F)       22      44      87 	    175     349     699     1397 	2794 	5588
+    파#(F#)     23      46      93 	    185     370     740     1475 	2960 	5920
+    솔(G) 	    25      49      98 	    196     392     784     1568 	3136 	6272
+    솔#(G#)     26      52      104     208     415     831     1661 	3322 	6645
+    라(A) 	    28      55      110     220     440     880     1760 	3520 	7040
+    라#(A#)     29      58      117     233     466     932     1865 	3729 	7459
+    시(B)       31      62      124     247     494     988     1976 	3951 	7902
+*/
 
-    C5 = 523,
-    C5_ = 554,
-    D5 = 587,
-    D5_ = 622,
-    E5 = 659,
-    F5 = 699,
-    F5_ = 740,
-    G5 = 784,
-    G5_ = 831,
-    A5 = 880,
-    A5_ = 932, 
-    B5 = 988
+typedef enum {
+    C0 = 16,    C1 = 33,    C2 = 65,    C3 = 131,   C4 = 262,   C5 = 523,   C6 = 1047,  C7 = 2093,  C8 = 4186,
+    C0_ = 17,   C1_ = 35,   C2_ = 69,   C3_ = 139,  C4_ = 278,  C5_ = 554,  C6_ = 1109, C7_ = 2218, C8_ = 4435,
+    D0 = 18,    D1 = 37,    D2 = 73,    D3 = 147,   D4 = 294,   D5 = 587,   D6 = 1175,  D7 = 2349,  D8 = 4699,
+    D0_ = 20,   D1_ = 39,   D2_ = 78,   D3_ = 156,  D4_ = 311,  D5_ = 622,  D6_ = 1245, D7_ = 2489, D8_ = 4978,
+    E0 = 21,    E1 = 41,    E2 = 82,    E3 = 165,   E4 = 330,   E5 = 659,   E6 = 1319,  E7 = 2637,  E8 = 5274,
+    F0 = 22,    F1 = 319,   F2 = 87,    F3 = 175,   F4 = 349,   F5 = 699,   F6 = 1397,  F7 = 2794,  F8 = 5588,
+    F0_ = 23,   F1_ = 370,  F2_ = 93,   F3_ = 185,  F4_ = 370,  F5_ = 740,  F6_ = 1475, F7_ = 2960, F8_ = 5920,
+    G0 = 25,    G1 = 392,   G2 = 98,    G3 = 196,   G4 = 392,   G5 = 784,   G6 = 1568,  G7 = 3136,  G8 = 6272,
+    G0_ = 26,   G1_ = 115,  G2_ = 104,  G3_ = 208,  G4_ = 415,  G5_ = 831,  G6_ = 1661, G7_ = 3322, G8_ = 6645,
+    A0 = 28,    A1 = 110,   A2 = 110,   A3 = 220,   A4 = 440,   A5 = 880,   A6 = 1760,  A7 = 3520,  A8 = 7040,
+    A0_ = 29,   A1_ = 166,  A2_ = 117,  A3_ = 233,  A4_ = 466,  A5_ = 932,  A6_ = 1865, A7_ = 3729, A8_ = 7459,
+    B0 = 31,    B1 = 191,   B2 = 124,   B3 = 247,   B4 = 494,   B5 = 988,   B6 = 1976,  B7 = 3951,  B8 = 7902
 } SCALE;
 
-#define GPGCON    (*(volatile GPCON *)0x56000060)
-#define GPGDAT    (*(volatile GPIOG *)0x56000064)
+#define GPGCON  (*(volatile GPCON *)0x56000060)
+#define GPGDAT  (*(volatile GPIOG *)0x56000064)
 
-#define GPFCON (*(volatile GPCON *)0x56000050)
-#define GPFDAT (*(volatile GPIOF *)0x56000054)
+#define GPFCON  (*(volatile GPCON *)0x56000050)
+#define GPFDAT  (*(volatile GPIOF *)0x56000054)
 
-#define GPECON (*(volatile GPCON *)0x56000040)
-#define GPEDAT (*(volatile GPIOE *)0x56000044)
+#define GPECON  (*(volatile GPCON *)0x56000040)
+#define GPEDAT  (*(volatile GPIOE *)0x56000044)
 
-#define GPBCON (*(volatile GPCON *)0x56000010)
-#define GPBDAT (*(volatile GPIOB *)0x56000014)
+#define GPBCON  (*(volatile GPCON *)0x56000010)
+#define GPBDAT  (*(volatile GPIOB *)0x56000014)
 
-#define TCFG0 (*(volatile TCFG0_ *)0x51000000)
-#define TCFG1 (*(volatile TCFG1_ *)0x51000004)
-#define TCON (*(volatile TCON_ *)0x51000008)
-
+#define TCFG0   (*(volatile TCFG0_ *)0x51000000)
+#define TCFG1   (*(volatile TCFG1_ *)0x51000004)
+#define TCON    (*(volatile TCON_ *)0x51000008)
 
 #endif
