@@ -31,6 +31,32 @@ extern void Led_Display(int data);
 extern void Timer_Init(void);
 extern void Timer_Delay(int msec);
 
+// Lcd.c
+extern void Graphic_Init(void);
+extern void Lcd_Wait_Blank(void);
+extern void Lcd_Copy(unsigned from, unsigned int to);
+extern void Lcd_Select_Frame_Buffer(unsigned int id);
+extern void Lcd_Display_Frame_Buffer(unsigned int id);
+extern void Lcd_Set_Tran_Mode(int mode);
+extern void Lcd_Put_Pixel(int x,int y,int c);
+extern void Lcd_Clr_Screen(unsigned long color);
+extern void Lcd_Hline(int y, int x1, int x2, int color);
+extern void Lcd_Vline(int x, int y1, int y2, int color);
+extern void Lcd_Line(int x1,int y1,int x2,int y2,int color);
+extern void Lcd_Rectangular(int x1, int y1, int x2, int y2, int color);
+extern void Lcd_Fill_Rectangular(int x1, int y1, int x2, int y2, int color);
+extern void Lcd_Printf(int x, int y, int color, int bkcolor, int zx, int zy, char *fmt,...);
+extern void Lcd_Get_Info_BMP(int * x, int  * y, const unsigned char *fp);
+extern void Lcd_Draw_BMP(int x, int y, const unsigned char *fp);
+
+extern int mdays[12];
+extern char wdays[7][4];
+
+extern int leap_check(int year);
+extern int get_days(int year, int month);
+extern int get_weekday(int year, int month, int date);
+extern void disp_calendar(int year, int month);
+
 typedef struct {
     unsigned char GPIO_PIN_0    : 1;
     unsigned char GPIO_PIN_1    : 1;

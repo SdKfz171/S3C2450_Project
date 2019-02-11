@@ -7,7 +7,7 @@
 #define _SDRAM_STARTADDRESS			0x30000000
 #define _ISR_STARTADDRESS			0x33ffff00
 #define _ISR_ENDADDRESS				(_ISR_STARTADDRESS+0x9c)
-// C º¯¼ö ¸Þ¸ð¸® ¿µ¿ªÀº ¹Ýµå½Ã ISR_Start ÁÖ¼Ò ÀÌÈÄ ÀÌ¾î¾ß ÇÑ´Ù
+// C ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ýµï¿½ï¿½ ISR_Start ï¿½Ö¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¾ï¿½ï¿½ ï¿½Ñ´ï¿½
 #define _CMEMORY_STARTADDRESS		(_SDRAM_STARTADDRESS)
 #define _MMUTT_STARTADDRESS     0x33ff8000
 #define HEAPEND                 0x33ff0000
@@ -17,6 +17,8 @@
 #define	FCLK		534000000	// 534.000MHz (400MHz)
 #define	HCLK		(FCLK/4)		// 133.000MHz (100MHz)
 #define	PCLK		(FCLK/8)		// 66.0000MHz (50MHz)
+
+#define FRAME_BUFFER 0x33800000
 
 // Variable Definition
 

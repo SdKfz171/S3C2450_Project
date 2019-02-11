@@ -19,13 +19,22 @@
 #include "libc.h"
 #include "option.h"
 
+
+#define BLACK   0x0000
+#define WHITE   0xFFFE
+#define BLUE    0x003E
+#define GREEN   0x07C0
+#define RED     0xF800
+#define YELLOW  0xFFC0
+#define WHITE_P 0xFFFF
+
 #define SLAVE_ADDR 0x0000
 
 #define FREQ 1000000
 
 uint16_t year = 19;
-uint8_t month = 2;
-uint8_t date = 8;
+uint8_t month = 1;
+uint8_t date = 1;
 uint8_t hour = 0;
 uint8_t minute = 0;
 uint8_t second = 0;
@@ -50,7 +59,7 @@ void gpio_init(){
 }
 
 void RTC_Init(){
-    // rRTCCON = (0x1C0);
+    // rRTCCON = (0x1CF);
 
     rTICNT0 = (0x80);
     rTICNT1 = (0x1);
@@ -58,13 +67,14 @@ void RTC_Init(){
 
     rRTCCON = ~(0x1F);
     rRTCCON = (0x1C1);
+
     rBCDYEAR = ((year / 10) << 4) + (year % 10);
     rBCDMON = ((month / 10) << 4) + (month % 10);
     rBCDDATE = ((date / 10) << 4) + (date % 10);
     rBCDHOUR = ((hour / 10) << 4) +(hour % 10);
-    rBCDHOUR = ((minute / 10) << 4) +(minute % 10);
-    rBCDHOUR = ((second / 10) << 4) +(second % 10);
-    //rRTCCON = (0x0);
+    rBCDMIN = ((minute / 10) << 4) +(minute % 10);
+    rBCDSEC = ((second / 10) << 4) +(second % 10);
+    // rRTCCON = (0x0);
 }
 
 void RTC_Tick_Init(){
@@ -138,66 +148,92 @@ void Main(){
     RTC_Init();
     RTC_Tick_Init();
     gpio_init();
+    Graphic_Init();
 
     Uart_Printf("Program Started!!\r\n");
     
-    // Buzzer Test 
-    Sound(C3, 500);
-    
-    Sound(D3, 500);
-    
-    Sound(E3, 500);
-    
-    Sound(F3, 500);
-    
-    Sound(G3, 500);
-    
-    Sound(A3, 500);
-    
-    Sound(B3, 500);
+    Lcd_Clr_Screen(WHITE);
+    Lcd_Select_Frame_Buffer(0);
 
-    Sound(C4, 500);
+    // rBCDMIN = 0;
+    // Lcd_Printf(0, 0, BLACK, WHITE, 6, 9, "TEST STR");
+    // // Buzzer Test 
+    // Sound(C3, 500);
     
-    Sound(D4, 500);
+    // Sound(D3, 500);
     
-    Sound(E4, 500);
+    // Sound(E3, 500);
     
-    Sound(F4, 500);
+    // Sound(F3, 500);
     
-    Sound(G4, 500);
+    // Sound(G3, 500);
     
-    Sound(A4, 500);
+    // Sound(A3, 500);
     
-    Sound(B4, 500);
+    // Sound(B3, 500);
+
+    // Sound(C4, 500);
     
-    Sound(C5, 500);
+    // Sound(D4, 500);
     
-    Sound(D5, 500);
+    // Sound(E4, 500);
     
-    Sound(E5, 500);
+    // Sound(F4, 500);
     
-    Sound(F5, 500);
+    // Sound(G4, 500);
     
-    Sound(G5, 500);
+    // Sound(A4, 500);
     
-    Sound(A5, 500);
+    // Sound(B4, 500);
     
-    Sound(B5, 500);
+    // Sound(C5, 500);
     
-    Sound(C6, 500);
+    // Sound(D5, 500);
+    
+    // Sound(E5, 500);
+    
+    // Sound(F5, 500);
+    
+    // Sound(G5, 500);
+    
+    // Sound(A5, 500);
+    
+    // Sound(B5, 500);
+    
+    // Sound(C6, 500);
 
     while(1){
-        GPGDAT.GPIO_PIN_4 = LOW;
-        delay_ms(500);
-        GPGDAT.GPIO_PIN_4 = HIGH;
-        delay_ms(500);
+        // GPGDAT.GPIO_PIN_4 = LOW;
+        // delay_ms(500);
+        // GPGDAT.GPIO_PIN_4 = HIGH;
+        // delay_ms(500);
         
-        Uart_Printf("%x %x %x\r\n", rBCDHOUR, rBCDMIN, rBCDSEC);
+        Uart_Printf("%d %d %d\r\n",  ((rBCDHOUR >> 4) * 10) + (rBCDHOUR & (0xF)), ((rBCDMIN >> 4) * 10) + (rBCDMIN & (0xF)), ((rBCDSEC >> 4) * 10) + (rBCDSEC & (0xF)));
     }
 }
 
 void __attribute__((interrupt("IRQ"))) RTC_TICK(void){
     ClearPending1(BIT_TICK);
     Uart_Printf("TICK INT\r\n");
+    
     // LCD REFRESH
+    // Lcd_Clr_Screen(WHITE);
+    // rRTCCON = (0x1C1);
+    Lcd_Printf(10, 10, BLACK, WHITE, 4, 3, "%d/%2d/%2d %s", 2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)), wdays[get_weekday(2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)))]);
+    Lcd_Printf(60, 60, BLACK, WHITE, 6, 9, "%02x : %02x", rBCDHOUR, rBCDMIN);
+    Lcd_Printf(400, 150, BLACK, WHITE, 3, 2, "%02x", rBCDSEC);
+
+    date++;
+    if(date > mdays[((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)) - 1]){
+        date = 1;
+        month++;
+    }
+    if(month > 12){
+        month = 1;
+        year++;
+    }
+
+    rBCDYEAR = ((year / 10) << 4) + (year % 10);
+    rBCDMON = ((month / 10) << 4) + (month % 10);
+    rBCDDATE = ((date / 10) << 4) + (date % 10);
 }
