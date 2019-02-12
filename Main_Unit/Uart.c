@@ -8,10 +8,19 @@
 
 // Function Declaration
 void Uart_Init(int baud);
+void Uart2_Init(int baud);
+
 void Uart_Printf(char *fmt,...);
+void Uart2_Printf(char *fmt,...);
+
 void Uart_Send_String(char *pt);
+void Uart2_Send_String(char *pt);
+
 void Uart_Send_Byte(int data);
+void Uart2_Send_Byte(int data);
+
 char Uart_Get_Char();
+char Uart2_Get_Char();
 
 extern int vsprintf(char *, const char *, va_list);
 
@@ -42,6 +51,30 @@ void Uart_Init(int baud)
 	rUDIVSLOT1=0xDFDD;
 }
 
+void Uart2_Init(int baud)
+{
+   int pclk;
+   pclk = PCLK;
+   
+   // PORT GPIO initial
+   rGPHCON &= ~(0xf<<8);
+   rGPHCON |= (0xa<<8);   
+
+   
+   rUFCON2= 0x0;
+   rUMCON2 = 0x0;
+   
+   /* TODO : Line Control(Normal mode, No parity, One stop bit, 8bit Word length */
+   rULCON2 = 0x3;
+
+      /* TODO : Transmit & Receive Mode is polling mode  */
+      rUCON2  = (0x5);      // fix
+      //rUMCON2 = (0<<0) | (1<<4) | (0x7 << 5);
+      /* TODO : Baud rate ¼³Á¤  */      
+      rUBRDIV2= ((unsigned int)(PCLK/16./baud+0.5)-1 ); 
+      //(*(volatile unsigned *)0x50000802c )= 0xDFDD;
+}
+
 void Uart_Printf(char *fmt,...)
 {
     va_list ap;
@@ -51,6 +84,17 @@ void Uart_Printf(char *fmt,...)
     vsprintf(string,fmt,ap);
     Uart_Send_String(string);
     va_end(ap);		
+}
+
+void Uart2_Printf(char *fmt,...)
+{
+	va_list ap;
+	char string[256];
+
+	va_start(ap, fmt);
+	vsprintf(string, fmt, ap);
+	Uart2_Send_String(string);
+	va_end(ap);
 }
 
 void Uart_Send_String(char *pt)
@@ -63,6 +107,14 @@ void Uart_Send_String(char *pt)
 		Uart_Send_Byte(*pt);
 		pt++;
 	}	
+}
+
+void Uart2_Send_String(char *pt)
+{
+	while(*pt){
+		Uart2_Send_Byte(*pt);
+		pt++;
+	}
 }
 
 void Uart_Send_Byte(int data)
@@ -78,6 +130,18 @@ void Uart_Send_Byte(int data)
 	  	WrUTXH1(data);
 }
 
+void Uart2_Send_Byte(int data)
+{
+	if(data == '\n')
+	{
+		while(!(rUTRSTAT2 & 0x2));
+		WrUTXH2('\r');
+	}
+
+	while(!(rUTRSTAT2 & 0x2));
+	WrUTXH2(data);
+}
+
 char Uart_Get_Char()
 {
 	/* TODO : UTRSTAT1�� ���� Ȯ���Ͽ� ���ڿ� �Է�   */	
@@ -85,4 +149,11 @@ char Uart_Get_Char()
 	  while(!(rUTRSTAT1 & 0x1));
 
 	  return RdURXH1();
+}
+
+char Uart2_Get_Char()
+{
+	while(!(rUTRSTAT2 & 0x1));
+
+	return RdURXH2();
 }

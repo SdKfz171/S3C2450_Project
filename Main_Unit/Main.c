@@ -18,6 +18,7 @@
 #include "2450addr.h"
 #include "libc.h"
 #include "option.h"
+#include "A_PULL.h"
 
 
 #define BLACK   0x0000
@@ -90,6 +91,10 @@ void RTC_Tick_Init(){
     pISR_TICK = (unsigned)RTC_TICK;
 }
 
+// void ALARM_Init(){
+//     rRTCALM = 
+// }
+
 void timer0_init(){
     TCFG0.PRESCALER0 = (33 - 1);
     TCFG1.MUX0 = 0;
@@ -155,58 +160,11 @@ void Main(){
     Lcd_Clr_Screen(WHITE);
     Lcd_Select_Frame_Buffer(0);
 
-    // rBCDMIN = 0;
-    // Lcd_Printf(0, 0, BLACK, WHITE, 6, 9, "TEST STR");
     // // Buzzer Test 
     // Sound(C3, 500);
     
-    // Sound(D3, 500);
-    
-    // Sound(E3, 500);
-    
-    // Sound(F3, 500);
-    
-    // Sound(G3, 500);
-    
-    // Sound(A3, 500);
-    
-    // Sound(B3, 500);
-
-    // Sound(C4, 500);
-    
-    // Sound(D4, 500);
-    
-    // Sound(E4, 500);
-    
-    // Sound(F4, 500);
-    
-    // Sound(G4, 500);
-    
-    // Sound(A4, 500);
-    
-    // Sound(B4, 500);
-    
-    // Sound(C5, 500);
-    
-    // Sound(D5, 500);
-    
-    // Sound(E5, 500);
-    
-    // Sound(F5, 500);
-    
-    // Sound(G5, 500);
-    
-    // Sound(A5, 500);
-    
-    // Sound(B5, 500);
-    
-    // Sound(C6, 500);
-
     while(1){
-        // GPGDAT.GPIO_PIN_4 = LOW;
-        // delay_ms(500);
-        // GPGDAT.GPIO_PIN_4 = HIGH;
-        // delay_ms(500);
+        
         
         Uart_Printf("%d %d %d\r\n",  ((rBCDHOUR >> 4) * 10) + (rBCDHOUR & (0xF)), ((rBCDMIN >> 4) * 10) + (rBCDMIN & (0xF)), ((rBCDSEC >> 4) * 10) + (rBCDSEC & (0xF)));
     }
