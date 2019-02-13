@@ -210,6 +210,126 @@ typedef struct
     unsigned char TIM4_AUTO_RELOAD : 1;
 } TCON_;
 
+typedef struct 
+{
+    unsigned char SECEN : 1;
+    unsigned char MINEN : 1;
+    unsigned char HOUREN : 1;
+    unsigned char DATEEN : 1;
+    unsigned char MONEN : 1;
+    unsigned char YEAREN : 1;
+    unsigned char ALMEN : 1;
+    unsigned char Reserved : 1;
+} RTCALM_;
+
+typedef struct 
+{
+    unsigned char EINT0 : 1;
+    unsigned char EINT1 : 1;
+    unsigned char EINT2 : 1;
+    unsigned char EINT3 : 1;
+    unsigned char EINT4_7 : 1;
+    unsigned char EINT8_23 : 1;
+    unsigned char INT_CAM : 1;
+    unsigned char nBATT_FLT : 1;
+    unsigned char INT_TICK : 1;
+    unsigned char INT_WDT_AC97 : 1;
+    unsigned char INT_TIMER0 : 1;
+    unsigned char INT_TIMER1 : 1;
+    unsigned char INT_TIMER2 : 1;
+    unsigned char INT_TIMER3 : 1;
+    unsigned char INT_TIMER4 : 1;
+    unsigned char INT_UART2 : 1;
+    unsigned char INT_LCD : 1;
+    unsigned char INT_DMA : 1;
+    unsigned char INT_UART3 : 1;
+    unsigned char INT_CFCON : 1;
+    unsigned char INT_SDI1 : 1;
+    unsigned char INT_SDI0 : 1;
+    unsigned char INT_SPI0 : 1;
+    unsigned char INT_UART1 : 1;
+    unsigned char INT_NAND : 1;
+    unsigned char INT_USBD : 1;
+    unsigned char INT_USBH : 1;
+    unsigned char INT_IIC0 : 1;
+    unsigned char INT_UART0 : 1;
+    unsigned char INT_SPI1 : 1;
+    unsigned char INT_RTC : 1;
+    unsigned char INT_ADC : 1;
+} INTMSK1_;
+
+typedef struct 
+{
+    unsigned char EINT0 : 1;
+    unsigned char EINT1 : 1;
+    unsigned char EINT2 : 1;
+    unsigned char EINT3 : 1;
+    unsigned char EINT4_7 : 1;
+    unsigned char EINT8_23 : 1;
+    unsigned char INT_CAM : 1;
+    unsigned char nBATT_FLT : 1;
+    unsigned char INT_TICK : 1;
+    unsigned char INT_WDT_AC97 : 1;
+    unsigned char INT_TIMER0 : 1;
+    unsigned char INT_TIMER1 : 1;
+    unsigned char INT_TIMER2 : 1;
+    unsigned char INT_TIMER3 : 1;
+    unsigned char INT_TIMER4 : 1;
+    unsigned char INT_UART2 : 1;
+    unsigned char INT_LCD : 1;
+    unsigned char INT_DMA : 1;
+    unsigned char INT_UART3 : 1;
+    unsigned char INT_CFCON : 1;
+    unsigned char INT_SDI1 : 1;
+    unsigned char INT_SDI0 : 1;
+    unsigned char INT_SPI0 : 1;
+    unsigned char INT_UART1 : 1;
+    unsigned char INT_NAND : 1;
+    unsigned char INT_USBD : 1;
+    unsigned char INT_USBH : 1;
+    unsigned char INT_IIC0 : 1;
+    unsigned char INT_UART0 : 1;
+    unsigned char INT_SPI1 : 1;
+    unsigned char INT_RTC : 1;
+    unsigned char INT_ADC : 1;
+} SRCPND1_;
+
+typedef struct 
+{
+    unsigned char EINT0 : 1;
+    unsigned char EINT1 : 1;
+    unsigned char EINT2 : 1;
+    unsigned char EINT3 : 1;
+    unsigned char EINT4_7 : 1;
+    unsigned char EINT8_23 : 1;
+    unsigned char INT_CAM : 1;
+    unsigned char nBATT_FLT : 1;
+    unsigned char INT_TICK : 1;
+    unsigned char INT_WDT_AC97 : 1;
+    unsigned char INT_TIMER0 : 1;
+    unsigned char INT_TIMER1 : 1;
+    unsigned char INT_TIMER2 : 1;
+    unsigned char INT_TIMER3 : 1;
+    unsigned char INT_TIMER4 : 1;
+    unsigned char INT_UART2 : 1;
+    unsigned char INT_LCD : 1;
+    unsigned char INT_DMA : 1;
+    unsigned char INT_UART3 : 1;
+    unsigned char INT_CFCON : 1;
+    unsigned char INT_SDI1 : 1;
+    unsigned char INT_SDI0 : 1;
+    unsigned char INT_SPI0 : 1;
+    unsigned char INT_UART1 : 1;
+    unsigned char INT_NAND : 1;
+    unsigned char INT_USBD : 1;
+    unsigned char INT_USBH : 1;
+    unsigned char INT_IIC0 : 1;
+    unsigned char INT_UART0 : 1;
+    unsigned char INT_SPI1 : 1;
+    unsigned char INT_RTC : 1;
+    unsigned char INT_ADC : 1;
+} INTPND1_;
+
 /*
     옥타브 	    0 	    1 	    2 	    3 	    4 	    5 	    6 	    7 	    8
     도(C) 	    16      33      65 	    131     262     523     1047    2093 	4186
@@ -256,5 +376,11 @@ typedef enum {
 #define TCFG0   (*(volatile TCFG0_ *)0x51000000)
 #define TCFG1   (*(volatile TCFG1_ *)0x51000004)
 #define TCON    (*(volatile TCON_ *)0x51000008)
+
+#define RTCALM  (*(volatile RTCALM_ *)0x57000050)
+
+#define SRCPND1 (*(volatile SRCPND1_ *)0x4A000000)
+#define INTMSK1 (*(volatile INTMSK1_ *)0x4A000008)
+#define INTPND1 (*(volatile INTPND1_ *)0x4A000010)
 
 #endif

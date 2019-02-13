@@ -81,8 +81,6 @@ void RTC_Init(){
 void RTC_Tick_Init(){
     rINTMOD1 = (0x0);
     
-    rINTMSK1 = BIT_ALLMSK;
-    
     rSRCPND1 = (BIT_TICK);
     rINTPND1 = (BIT_TICK);
 
@@ -91,8 +89,21 @@ void RTC_Tick_Init(){
     pISR_TICK = (unsigned)RTC_TICK;
 }
 
-// void ALARM_Init(){
-//     rRTCALM = 
+void ALARM_Init(int hour, int min){
+    RTCALM.ALMEN = 1;
+    RTCALM.HOUREN = 1;
+    RTCALM.MINEN = 1;
+    RTCALM.SECEN = 1;
+
+    rALMHOUR = ((hour / 10) << 4) + (hour % 10);
+    rALMMIN = ((min / 10) << 4) + (min % 10);
+    rALMSEC = (0 << 4) + (0 % 10);
+}
+
+// void ALARM_Int_Init(){
+//     rINTMOD1 = (0x0);
+
+
 // }
 
 void timer0_init(){
