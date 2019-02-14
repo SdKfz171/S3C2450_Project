@@ -37,10 +37,11 @@ uint16_t year = 19;
 uint8_t month = 2;
 uint8_t date = 13;
 uint8_t hour = 17;
-uint8_t minute = 18;
-uint8_t second = 20;
+uint8_t minute = 19;
+uint8_t second = 50;
 
 void __attribute__((interrupt("IRQ"))) RTC_TICK(void);
+void __attribute__((interrupt("IRQ"))) RTC_ALARM(void);
 
 void gpio_init(){
     // LED INIT
@@ -75,16 +76,16 @@ void RTC_Init(){
     rBCDHOUR = ((hour / 10) << 4) +(hour % 10);
     rBCDMIN = ((minute / 10) << 4) +(minute % 10);
     rBCDSEC = ((second / 10) << 4) +(second % 10);
-    // rRTCCON = (0x0);
+    //rRTCCON = (0x0);
 }
 
 void RTC_Tick_Init(){
     rINTMOD1 = (0x0);
     
-    rSRCPND1 = (BIT_TICK);
-    rINTPND1 = (BIT_TICK);
+    SRCPND1.INT_TICK = 1;
+    INTPND1.INT_TICK = 1;
 
-    rINTMSK1 = ~(BIT_TICK);
+    INTMSK1.INT_TICK = 0;
 
     pISR_TICK = (unsigned)RTC_TICK;
 }
@@ -100,11 +101,16 @@ void ALARM_Init(int hour, int min){
     rALMSEC = (0 << 4) + (0 % 10);
 }
 
-// void ALARM_Int_Init(){
-//     rINTMOD1 = (0x0);
+void ALARM_Int_Init(){
+    rINTMOD1 = (0x0);
 
+    SRCPND1.INT_RTC = 1;
+    INTPND1.INT_RTC = 1;
 
-// }
+    INTMSK1.INT_RTC = 0;
+
+    pISR_RTC = (unsigned)RTC_ALARM;
+}
 
 void timer0_init(){
     TCFG0.PRESCALER0 = (33 - 1);
@@ -163,6 +169,8 @@ void Main(){
     timer0_init();
     RTC_Init();
     RTC_Tick_Init();
+    ALARM_Init(17, 20);
+    ALARM_Int_Init();
     gpio_init();
     Graphic_Init();
 
@@ -177,7 +185,7 @@ void Main(){
     while(1){
         
         
-        Uart_Printf("%d %d %d\r\n",  ((rBCDHOUR >> 4) * 10) + (rBCDHOUR & (0xF)), ((rBCDMIN >> 4) * 10) + (rBCDMIN & (0xF)), ((rBCDSEC >> 4) * 10) + (rBCDSEC & (0xF)));
+        // Uart_Printf("%d %d %d\r\n",  ((rBCDHOUR >> 4) * 10) + (rBCDHOUR & (0xF)), ((rBCDMIN >> 4) * 10) + (rBCDMIN & (0xF)), ((rBCDSEC >> 4) * 10) + (rBCDSEC & (0xF)));
     }
 }
 
@@ -205,4 +213,26 @@ void __attribute__((interrupt("IRQ"))) RTC_TICK(void){
     // rBCDYEAR = ((year / 10) << 4) + (year % 10);
     // rBCDMON = ((month / 10) << 4) + (month % 10);
     // rBCDDATE = ((date / 10) << 4) + (date % 10);
+}
+
+void __attribute__((interrupt("IRQ"))) RTC_ALARM(void){
+    ClearPending1(BIT_RTC);
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
 }

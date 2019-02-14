@@ -643,7 +643,7 @@ void Lcd_Puts(int x, int y, int color, int bkcolor, char *str, int zx, int zy)
      while(*str)
      {
         data=*str++;
-        Uart_Printf("%d ",data);
+        // Uart_Printf("%d ",data);
         if(data>=128) 
         { 
              data*=256;
