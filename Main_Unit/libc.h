@@ -212,6 +212,17 @@ typedef struct
 
 typedef struct 
 {
+    unsigned char RTCEN : 1;
+    unsigned char CLKSEL : 1;
+    unsigned char CNTSEL : 1;
+    unsigned char CLKRST : 1;
+    unsigned char TICSEL : 1;
+    unsigned char TICSEL2 : 4;
+} RTCCON_;
+
+
+typedef struct 
+{
     unsigned char SECEN : 1;
     unsigned char MINEN : 1;
     unsigned char HOUREN : 1;
@@ -381,6 +392,127 @@ typedef struct
     unsigned char EINT23 : 1;
     unsigned char : 8;
 } EINTMASK_;
+
+typedef struct 
+{
+    unsigned char EINT0 : 3;
+    unsigned char       : 1;
+    unsigned char EINT1 : 3;
+    unsigned char       : 1;
+    unsigned char EINT2 : 3;
+    unsigned char       : 1;
+    unsigned char EINT3 : 3;
+    unsigned char       : 1;
+    unsigned char EINT4 : 3;
+    unsigned char       : 1;
+    unsigned char EINT5 : 3;
+    unsigned char       : 1;
+    unsigned char EINT6 : 3;
+    unsigned char       : 1;
+    unsigned char EINT7 : 3;
+    unsigned char       : 1;
+} EXTINT0_;
+
+typedef struct 
+{
+    unsigned char EINT8 : 3;
+    unsigned char       : 1;
+    unsigned char EINT9 : 3;
+    unsigned char       : 1;
+    unsigned char EINT10 : 3;
+    unsigned char       : 1;
+    unsigned char EINT11 : 3;
+    unsigned char       : 1;
+    unsigned char EINT12 : 3;
+    unsigned char       : 1;
+    unsigned char EINT13 : 3;
+    unsigned char       : 1;
+    unsigned char EINT14 : 3;
+    unsigned char       : 1;
+    unsigned char EINT15 : 3;
+    unsigned char       : 1;
+} EXTINT1_;
+
+typedef struct 
+{
+    unsigned char EINT16 : 3;
+    unsigned char FLTEN16 : 1;
+    unsigned char EINT17 : 3;
+    unsigned char FLTEN17 : 1;
+    unsigned char EINT18 : 3;
+    unsigned char FLTEN18 : 1;
+    unsigned char EINT19 : 3;
+    unsigned char FLTEN19 : 1;
+    unsigned char EINT20 : 3;
+    unsigned char FLTEN20 : 1;
+    unsigned char EINT21 : 3;
+    unsigned char FLTEN21 : 1;
+    unsigned char EINT22 : 3;
+    unsigned char FLTEN22 : 1;
+    unsigned char EINT23 : 3;
+    unsigned char FLTEN23 : 1;
+} EXTINT2_;
+
+typedef struct 
+{
+    unsigned char TICK_TIME_CNT0 : 7;
+    unsigned char TICK_INT_EN : 1;
+} TICNT0_;
+
+typedef struct 
+{
+    unsigned char TICK_TIME_CNT1 : 8; 
+} TICNT1_;
+
+typedef struct 
+{
+    unsigned int TICK_TIME_CNT2 : 17; 
+} TICNT2_;
+
+typedef struct 
+{
+    unsigned char YEAR_1 : 4;
+    unsigned char YEAR_10 : 4;
+} YEAR;
+
+typedef struct  
+{
+    unsigned char MON_1 : 4;
+    unsigned char MON_10 : 1;
+    unsigned char       : 3;
+} MON;
+
+typedef struct 
+{
+    unsigned char DAY_1 : 3;
+    unsigned char       : 5;
+} DAY;
+
+typedef struct 
+{
+    unsigned char DATE_1 : 4;
+    unsigned char DATE_10 : 2;
+    unsigned char       : 2;
+} DATE;
+
+typedef struct 
+{
+    unsigned char HOUR_1 : 4;
+    unsigned char HOUR_10 : 2;
+    unsigned char       : 2;
+} HOUR;
+
+typedef struct 
+{
+    unsigned char MIN_1 : 4;
+    unsigned char MIN_10 : 2;
+} MIN;
+
+typedef struct 
+{
+    unsigned char SEC_1 : 4;
+    unsigned char SEC_10 : 2;
+} SEC;
 /*
     옥타브 	    0 	    1 	    2 	    3 	    4 	    5 	    6 	    7 	    8
     도(C) 	    16      33      65 	    131     262     523     1047    2093 	4186
@@ -428,10 +560,96 @@ typedef enum {
 #define TCFG1   (*(volatile TCFG1_ *)0x51000004)
 #define TCON    (*(volatile TCON_ *)0x51000008)
 
+#define RTCCON  (*(volatile RTCCON_ *)0x57000040)
+#define TICNT0  (*(volatile TICNT0_ *)0x57000044)
+#define TICNT2  (*(volatile TICNT2_ *)0x57000048)
+#define TICNT1  (*(volatile TICNT1_ *)0x5700004C)
 #define RTCALM  (*(volatile RTCALM_ *)0x57000050)
+
+#define ALMSEC     (*(volatile SEC *)0x57000054)
+#define ALMMIN     (*(volatile MIN *)0x57000058)
+#define ALMHOUR    (*(volatile HOUR *)0x5700005C)
+#define ALMDATE    (*(volatile DATE *)0x57000060)
+#define ALMMON     (*(volatile MON *)0x57000064)
+#define ALMYEAR    (*(volatile YEAR *)0x57000068)
+
+#define BCDSEC     (*(volatile SEC *)0x57000070)
+#define BCDMIN     (*(volatile MIN *)0x57000074)
+#define BCDHOUR    (*(volatile HOUR *)0x57000078)
+#define BCDDATE    (*(volatile DATE *)0x5700007C)
+#define BCDDAY     (*(volatile DAY *)0x57000080)
+#define BCDMON     (*(volatile MON *)0x57000084)
+#define BCDYEAR    (*(volatile YEAR *)0x57000088)
 
 #define SRCPND1 (*(volatile SRCPND1_ *)0x4A000000)
 #define INTMSK1 (*(volatile INTMSK1_ *)0x4A000008)
 #define INTPND1 (*(volatile INTPND1_ *)0x4A000010)
+
+#define EXTINT0     (*(volatile EXTINT0_ *)0x56000088)
+#define EXTINT1     (*(volatile EXTINT1_ *)0x5600008C)
+#define EXTINT2     (*(volatile EXTINT2_ *)0x56000090)
+#define EINTMASK    (*(volatile EINTMASK_ *)0x560000A4)
+#define EINTPEND    (*(volatile EINTPEND_ *)0x560000A8)
+
+void Set_ALM_Time(uint8_t hour, uint8_t min, uint8_t sec){
+    Set_ALM_Hour(hour);
+    Set_ALM_Minute(min);
+    Set_ALM_Second(second);
+}
+
+void Set_ALM_Hour(uint8_t hour){
+    ALMHOUR.HOUR_10 = hour / 10;
+    ALMHOUR.HOUR_1 = hour % 10;
+}
+
+void Set_ALM_Minute(uint8_t min){
+    ALMMIN.MIN_10 = min / 10;
+    ALMMIN.MIN_1 = min % 10;
+}
+
+void Set_ALM_Second(uint8_t sec){
+    ALMSEC.SEC_10 = sec / 10;
+    ALMSEC.SEC_1 = sec % 10;
+}
+
+void Set_BCD_Time(uint16_t year, uint8_t mon, uint8_t date, 
+                    uint8_t hour, uint8_t min, uint8_t sec){
+    Set_BCD_Year(year);
+    Set_BCD_Month(mon);
+    Set_BCD_Date(date);
+    Set_BCD_Hour(hour);
+    Set_BCD_Minute(min);
+    Set_BCD_Second(sec);
+}
+
+void Set_BCD_Year(uint16_t year){
+    BCDYEAR.YEAR_10 = year / 10;
+    BCDYEAR.YEAR_1 = year % 10;
+}
+
+void Set_BCD_Month(uint8_t mon){
+    BCDMON.MON_10 = mon / 10;
+    BCDMON.MON_1 = mon % 10;
+}
+
+void Set_BCD_Date(uint8_t date){
+    BCDDATE.DATE_10 = date / 10;
+    BCDDATE.DATE_1 = date % 10;
+}
+
+void Set_BCD_Hour(uint8_t hour){
+    BCDHOUR.HOUR_10 = hour / 10;
+    BCDHOUR.HOUR_1 = hour % 10;
+}
+
+void Set_BCD_Minute(uint8_t min){
+    BCDMIN.MIN_10 = min / 10;
+    BCDMIN.MIN_1 = min % 10;
+}
+
+void Set_BCD_Second(uint8_t sec){
+    BCDSEC.SEC_10 = sec / 10;
+    BCDSEC.SEC_1 = sec % 10;
+}
 
 #endif

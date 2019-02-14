@@ -18,8 +18,6 @@
 #include "2450addr.h"
 #include "libc.h"
 #include "option.h"
-#include "A_PULL.h"
-
 
 #define BLACK   0x0000
 #define WHITE   0xFFFE
@@ -28,10 +26,6 @@
 #define RED     0xF800
 #define YELLOW  0xFFC0
 #define WHITE_P 0xFFFF
-
-#define SLAVE_ADDR 0x0000
-
-#define FREQ 1000000
 
 uint16_t year = 19;
 uint8_t month = 2;
@@ -50,12 +44,6 @@ void gpio_init(){
     GPGCON.GPIO_PIN_6 = OUTPUT;
     GPGCON.GPIO_PIN_7 = OUTPUT; 
 
-    rGPECON = 0x55555555;
-    GPECON.GPIO_PIN_14 = OUTPUT;
-    // GPECON.GPIO_PIN_13 = 0x2;
-    // GPECON.GPIO_PIN_12 = 0x2;
-    // GPECON.GPIO_PIN_11 = 0x2;
-
     GPBCON.GPIO_PIN_1 = OUTPUT;
     GPBDAT.GPIO_PIN_1 = 1;
 }
@@ -63,19 +51,30 @@ void gpio_init(){
 void RTC_Init(){
     // rRTCCON = (0x1CF);
 
-    rTICNT0 = (0x80);
-    rTICNT1 = (0x1);
-    rTICNT2 = (0x0);
+    TICNT0.TICK_INT_EN = 1;
+    TICNT0.TICK_TIME_CNT0 = 0;
+    TICNT1.TICK_TIME_CNT1 = 1;
+    TICNT2.TICK_TIME_CNT2 = 0;
+    // rTICNT0 = (0x80);
+    // rTICNT1 = (0x1);
+    // rTICNT2 = (0x0);
 
-    rRTCCON = ~(0x1F);
-    rRTCCON = (0x1C1);
+    RTCCON.RTCEN = 0;
+    RTCCON.CLKSEL = 0;
+    RTCCON.CNTSEL = 0;
+    RTCCON.CLKRST = 0;
+    RTCCON.TICSEL = 0;
+    RTCCON.TICSEL2 = 14;
+    // rRTCCON = ~(0x1F);
+    // rRTCCON = (0x1C1);
 
-    rBCDYEAR = ((year / 10) << 4) + (year % 10);
-    rBCDMON = ((month / 10) << 4) + (month % 10);
-    rBCDDATE = ((date / 10) << 4) + (date % 10);
-    rBCDHOUR = ((hour / 10) << 4) +(hour % 10);
-    rBCDMIN = ((minute / 10) << 4) +(minute % 10);
-    rBCDSEC = ((second / 10) << 4) +(second % 10);
+    Set_BCD_Time(year, month, date, hour, minute, second);
+    // rBCDYEAR = ((year / 10) << 4) + (year % 10);
+    // rBCDMON = ((month / 10) << 4) + (month % 10);
+    // rBCDDATE = ((date / 10) << 4) + (date % 10);
+    // rBCDHOUR = ((hour / 10) << 4) +(hour % 10);
+    // rBCDMIN = ((minute / 10) << 4) +(minute % 10);
+    // rBCDSEC = ((second / 10) << 4) +(second % 10);
     //rRTCCON = (0x0);
 }
 
@@ -96,9 +95,10 @@ void ALARM_Init(int hour, int min){
     RTCALM.MINEN = 1;
     RTCALM.SECEN = 1;
 
-    rALMHOUR = ((hour / 10) << 4) + (hour % 10);
-    rALMMIN = ((min / 10) << 4) + (min % 10);
-    rALMSEC = (0 << 4) + (0 % 10);
+    Set_ALM_Time(hour, min, 0);
+    // rALMHOUR = ((hour / 10) << 4) + (hour % 10);
+    // rALMMIN = ((min / 10) << 4) + (min % 10);
+    // rALMSEC = (0 << 4) + (0 % 10);
 }
 
 void ALARM_Int_Init(){
