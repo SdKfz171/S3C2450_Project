@@ -67,6 +67,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+ADC_HandleTypeDef hadc1;
+
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart3;
 DMA_HandleTypeDef hdma_usart1_rx;
@@ -87,6 +89,7 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART3_UART_Init(void);
+static void MX_ADC1_Init(void);
 void StartDefaultTask(void const * argument);
 void StartTask02(void const * argument);
 void StartTask03(void const * argument);
@@ -101,6 +104,7 @@ void StartTask03(void const * argument);
 
 uint8_t HUMI[2] = { 0 };
 uint8_t TEMP[2] = { 0 };
+float dust_density = 0.f;
 
 typedef enum 
 {
@@ -108,6 +112,7 @@ typedef enum
 	INPUT = GPIO_MODE_INPUT
 } Pinmode;
 
+uint32_t Limit_Value = 0;
 int dht11_data[5] = { 0, 0, 0, 0, 0 };			// dht11 data array [0, 1] => Humidity, [2, 3] => Temperature, [5] => Checksum 
 
 void Gpio_Pinmode(GPIO_TypeDef * port, uint32_t pin, uint32_t mode){
@@ -190,6 +195,29 @@ void Read_Dht11_Data()
 	}
 }
 
+float Read_Dust_Data(){
+	int sampling_time = 280;
+	int delta_time = 40;
+	int sleep_time = 9680;
+	
+	uint32_t vo_measured = 0;
+	float calc_voltage = 0;
+	
+	HAL_GPIO_WritePin(LED_PIN_GPIO_Port, LED_PIN_Pin, 0);
+	DWT_Delay_us(sampling_time);
+	
+	vo_measured = HAL_ADC_GetValue(&hadc1);
+	
+	DWT_Delay_us(delta_time);
+	HAL_GPIO_WritePin(LED_PIN_GPIO_Port, LED_PIN_Pin, 1);
+	DWT_Delay_us(sleep_time);
+	
+	calc_voltage = vo_measured * (5.f / 1024.f);
+	
+	dust_density = 0.17f * calc_voltage - 0.1f;
+	dust_density *= 1000;
+}
+
 int fputc(int ch, FILE *f){
   uint8_t temp[1] = {ch};
   HAL_UART_Transmit(&huart1, temp, 1, 2);
@@ -228,6 +256,7 @@ int main(void)
   MX_DMA_Init();
   MX_USART1_UART_Init();
   MX_USART3_UART_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 	DWT_Delay_Init ();
 	
@@ -307,6 +336,7 @@ void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /**Initializes the CPU, AHB and APB busses clocks 
   */
@@ -334,6 +364,57 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
+
+/**
+  * @brief ADC1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_ADC1_Init(void)
+{
+
+  /* USER CODE BEGIN ADC1_Init 0 */
+
+  /* USER CODE END ADC1_Init 0 */
+
+  ADC_ChannelConfTypeDef sConfig = {0};
+
+  /* USER CODE BEGIN ADC1_Init 1 */
+
+  /* USER CODE END ADC1_Init 1 */
+  /**Common config 
+  */
+  hadc1.Instance = ADC1;
+  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  hadc1.Init.NbrOfConversion = 1;
+  if (HAL_ADC_Init(&hadc1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /**Configure Regular Channel 
+  */
+  sConfig.Channel = ADC_CHANNEL_5;
+  sConfig.Rank = ADC_REGULAR_RANK_1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN ADC1_Init 2 */
+
+  /* USER CODE END ADC1_Init 2 */
+
 }
 
 /**
@@ -435,7 +516,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4|LED_PIN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : PA1 */
   GPIO_InitStruct.Pin = GPIO_PIN_1;
@@ -449,8 +530,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PA4 */
-  GPIO_InitStruct.Pin = GPIO_PIN_4;
+  /*Configure GPIO pins : PA4 LED_PIN_Pin */
+  GPIO_InitStruct.Pin = GPIO_PIN_4|LED_PIN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -494,8 +575,7 @@ void StartDefaultTask(void const * argument)
   {
 		xLastWakeTime = xTaskGetTickCount();
 		Read_Dht11_Data();
-		
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 0);
+		Read_Dust_Data();
 		
 		vTaskDelay(2000);
 //    vTaskDelayUntil(&xLastWakeTime, xDHT_Delay);
@@ -550,8 +630,6 @@ void StartTask02(void const * argument)
 			HAL_UART_Receive_IT(&huart1, Command, 4);
 		}
 		
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 0);
-		
 		vTaskDelay(10);
   }
   /* USER CODE END StartTask02 */
@@ -570,6 +648,7 @@ void StartTask03(void const * argument)
   /* Infinite loop */
   for(;;)
   {
+		
 		
   }
   /* USER CODE END StartTask03 */
