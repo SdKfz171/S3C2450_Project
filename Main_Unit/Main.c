@@ -34,11 +34,11 @@
 #define FREQ 1000000
 
 uint16_t year = 19;
-uint8_t month = 1;
-uint8_t date = 1;
-uint8_t hour = 0;
-uint8_t minute = 0;
-uint8_t second = 0;
+uint8_t month = 2;
+uint8_t date = 13;
+uint8_t hour = 5;
+uint8_t minute = 59;
+uint8_t second = 10;
 
 void __attribute__((interrupt("IRQ"))) RTC_TICK(void);
 
@@ -192,17 +192,17 @@ void __attribute__((interrupt("IRQ"))) RTC_TICK(void){
     Lcd_Printf(60, 60, BLACK, WHITE, 6, 9, "%02x : %02x", rBCDHOUR, rBCDMIN);
     Lcd_Printf(400, 150, BLACK, WHITE, 3, 2, "%02x", rBCDSEC);
 
-    date++;
-    if(date > mdays[((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)) - 1]){
-        date = 1;
-        month++;
-    }
-    if(month > 12){
-        month = 1;
-        year++;
-    }
+    // date++;
+    // if(date > mdays[((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)) - 1]){
+    //     date = 1;
+    //     month++;
+    // }
+    // if(month > 12){
+    //     month = 1;
+    //     year++;
+    // }
 
-    rBCDYEAR = ((year / 10) << 4) + (year % 10);
-    rBCDMON = ((month / 10) << 4) + (month % 10);
-    rBCDDATE = ((date / 10) << 4) + (date % 10);
+    // rBCDYEAR = ((year / 10) << 4) + (year % 10);
+    // rBCDMON = ((month / 10) << 4) + (month % 10);
+    // rBCDDATE = ((date / 10) << 4) + (date % 10);
 }
