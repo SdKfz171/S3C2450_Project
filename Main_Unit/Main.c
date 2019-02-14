@@ -37,8 +37,8 @@ uint16_t year = 19;
 uint8_t month = 2;
 uint8_t date = 13;
 uint8_t hour = 17;
-uint8_t minute = 19;
-uint8_t second = 50;
+uint8_t minute = 50;
+uint8_t second = 20;
 
 void __attribute__((interrupt("IRQ"))) RTC_TICK(void);
 void __attribute__((interrupt("IRQ"))) RTC_ALARM(void);

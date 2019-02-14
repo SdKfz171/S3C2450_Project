@@ -330,6 +330,57 @@ typedef struct
     unsigned char INT_ADC : 1;
 } INTPND1_;
 
+typedef struct 
+{
+    unsigned char : 4;
+    unsigned char EINT4 : 1;
+    unsigned char EINT5 : 1;
+    unsigned char EINT6 : 1;
+    unsigned char EINT7 : 1;
+    unsigned char EINT8 : 1;
+    unsigned char EINT9 : 1;
+    unsigned char EINT10 : 1;
+    unsigned char EINT11 : 1;
+    unsigned char EINT12 : 1;
+    unsigned char EINT13 : 1;
+    unsigned char EINT14 : 1;
+    unsigned char EINT15 : 1;
+    unsigned char EINT16 : 1;
+    unsigned char EINT17 : 1;
+    unsigned char EINT18 : 1;
+    unsigned char EINT19 : 1;
+    unsigned char EINT20 : 1;
+    unsigned char EINT21 : 1;
+    unsigned char EINT22 : 1;
+    unsigned char EINT23 : 1;
+    unsigned char : 8;
+} EINTPEND_;
+
+typedef struct 
+{
+    unsigned char : 4;
+    unsigned char EINT4 : 1;
+    unsigned char EINT5 : 1;
+    unsigned char EINT6 : 1;
+    unsigned char EINT7 : 1;
+    unsigned char EINT8 : 1;
+    unsigned char EINT9 : 1;
+    unsigned char EINT10 : 1;
+    unsigned char EINT11 : 1;
+    unsigned char EINT12 : 1;
+    unsigned char EINT13 : 1;
+    unsigned char EINT14 : 1;
+    unsigned char EINT15 : 1;
+    unsigned char EINT16 : 1;
+    unsigned char EINT17 : 1;
+    unsigned char EINT18 : 1;
+    unsigned char EINT19 : 1;
+    unsigned char EINT20 : 1;
+    unsigned char EINT21 : 1;
+    unsigned char EINT22 : 1;
+    unsigned char EINT23 : 1;
+    unsigned char : 8;
+} EINTMASK_;
 /*
     옥타브 	    0 	    1 	    2 	    3 	    4 	    5 	    6 	    7 	    8
     도(C) 	    16      33      65 	    131     262     523     1047    2093 	4186
