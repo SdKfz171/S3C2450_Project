@@ -341,6 +341,47 @@ typedef struct
     unsigned char INT_ADC : 1;
 } INTPND1_;
 
+typedef enum INT_MODE {
+    IRQ = 0x0, FIQ = 0x1
+};
+
+typedef struct 
+{
+    unsigned char EINT0 : 1;
+    unsigned char EINT1 : 1;
+    unsigned char EINT2 : 1;
+    unsigned char EINT3 : 1;
+    unsigned char EINT4_7 : 1;
+    unsigned char EINT8_23 : 1;
+    unsigned char INT_CAM : 1;
+    unsigned char nBATT_FLT : 1;
+    unsigned char INT_TICK : 1;
+    unsigned char INT_WDT_AC97 : 1;
+    unsigned char INT_TIMER0 : 1;
+    unsigned char INT_TIMER1 : 1;
+    unsigned char INT_TIMER2 : 1;
+    unsigned char INT_TIMER3 : 1;
+    unsigned char INT_TIMER4 : 1;
+    unsigned char INT_UART2 : 1;
+    unsigned char INT_LCD : 1;
+    unsigned char INT_DMA : 1;
+    unsigned char INT_UART3 : 1;
+    unsigned char INT_CFCON : 1;
+    unsigned char INT_SDI1 : 1;
+    unsigned char INT_SDI0 : 1;
+    unsigned char INT_SPI0 : 1;
+    unsigned char INT_UART1 : 1;
+    unsigned char INT_NAND : 1;
+    unsigned char INT_USBD : 1;
+    unsigned char INT_USBH : 1;
+    unsigned char INT_IIC0 : 1;
+    unsigned char INT_UART0 : 1;
+    unsigned char INT_SPI1 : 1;
+    unsigned char INT_RTC : 1;
+    unsigned char INT_ADC : 1;
+} INTMOD1_;
+
+
 typedef struct 
 {
     unsigned char : 4;
@@ -582,6 +623,7 @@ typedef enum {
 #define BCDYEAR    (*(volatile YEAR *)0x57000088)
 
 #define SRCPND1 (*(volatile SRCPND1_ *)0x4A000000)
+#define INTMOD1 (*(volatile INTMOD1_ *)0x4A000004)
 #define INTMSK1 (*(volatile INTMSK1_ *)0x4A000008)
 #define INTPND1 (*(volatile INTPND1_ *)0x4A000010)
 

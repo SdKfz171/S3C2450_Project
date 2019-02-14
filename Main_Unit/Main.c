@@ -36,16 +36,33 @@ uint8_t second = 20;
 
 void __attribute__((interrupt("IRQ"))) RTC_TICK(void);
 void __attribute__((interrupt("IRQ"))) RTC_ALARM(void);
+void __attribute__((interrupt("IRQ"))) EINT8_23_Handler(void);
 
 void gpio_init(){
     // LED INIT
+    GPGCON.GPIO_PIN_1 = ALTERNATIVE_0;  // 메뉴 전환 인터럽트 핀
     GPGCON.GPIO_PIN_4 = OUTPUT;
     GPGCON.GPIO_PIN_5 = OUTPUT;
     GPGCON.GPIO_PIN_6 = OUTPUT;
     GPGCON.GPIO_PIN_7 = OUTPUT; 
 
     GPBCON.GPIO_PIN_1 = OUTPUT;
-    GPBDAT.GPIO_PIN_1 = 1;
+    GPBDAT.GPIO_PIN_1 = HIGH;
+}
+
+void EXTI_Init(){
+    INTMOD1.EINT8_23 = IRQ;
+
+    SRCPND1.EINT8_23 = 1;
+    INTPND1.EINT8_23 = 1;
+    INTMSK1.EINT8_23 = 0;
+    
+    EXTINT1.EINT9 = RISING_EDGE;
+    
+    EINTPEND.EINT9 = 1;
+    EINTMASK.EINT9 = 0;
+
+    pISR_EINT8_23 = (unsigned)EINT8_23_Handler;
 }
 
 void RTC_Init(){
@@ -79,7 +96,7 @@ void RTC_Init(){
 }
 
 void RTC_Tick_Init(){
-    rINTMOD1 = (0x0);
+    INTMOD1.INT_TICK = IRQ;
     
     SRCPND1.INT_TICK = 1;
     INTPND1.INT_TICK = 1;
@@ -102,7 +119,7 @@ void ALARM_Init(int hour, int min){
 }
 
 void ALARM_Int_Init(){
-    rINTMOD1 = (0x0);
+    INTMOD1.INT_RTC = IRQ;
 
     SRCPND1.INT_RTC = 1;
     INTPND1.INT_RTC = 1;
@@ -172,6 +189,7 @@ void Main(){
     ALARM_Init(17, 20);
     ALARM_Int_Init();
     gpio_init();
+    EXTI_Init();
     Graphic_Init();
 
     Uart_Printf("Program Started!!\r\n");
@@ -183,8 +201,6 @@ void Main(){
     // Sound(C3, 500);
     
     while(1){
-        
-        
         // Uart_Printf("%d %d %d\r\n",  ((rBCDHOUR >> 4) * 10) + (rBCDHOUR & (0xF)), ((rBCDMIN >> 4) * 10) + (rBCDMIN & (0xF)), ((rBCDSEC >> 4) * 10) + (rBCDSEC & (0xF)));
     }
 }
@@ -235,4 +251,13 @@ void __attribute__((interrupt("IRQ"))) RTC_ALARM(void){
     Uart_Printf("ALARM INT\r\n");
     Uart_Printf("ALARM INT\r\n");
     Uart_Printf("ALARM INT\r\n");
+}
+
+void __attribute__((interrupt("IRQ"))) EINT8_23_Handler(void){
+    ClearPending1(BIT_EINT8_23);
+    if(EINTPEND.EINT9 == 1){
+        EINTPEND.EINT9 = 1;
+        // MENU Change
+
+    }
 }
