@@ -218,7 +218,7 @@ typedef struct
     unsigned char CLKRST : 1;
     unsigned char TICSEL : 1;
     unsigned char TICSEL2 : 4;
-    unsigned char : 7;
+    // unsigned char : 7;
 } RTCCON_;
 
 
@@ -547,13 +547,13 @@ typedef struct
 typedef struct 
 {
     unsigned char MIN_1 : 4;
-    unsigned char MIN_10 : 2;
+    unsigned char MIN_10 : 3;
 } MIN;
 
 typedef struct 
 {
     unsigned char SEC_1 : 4;
-    unsigned char SEC_10 : 2;
+    unsigned char SEC_10 : 3;
 } SEC;
 /*
     옥타브 	    0 	    1 	    2 	    3 	    4 	    5 	    6 	    7 	    8

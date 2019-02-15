@@ -27,13 +27,6 @@
 #define YELLOW  0xFFC0
 #define WHITE_P 0xFFFF
 
-uint16_t year = 19;
-uint8_t month = 2;
-uint8_t date = 15;
-uint8_t hour = 11;
-uint8_t minute = 53;
-uint8_t second = 10;
-
 void __attribute__((interrupt("IRQ"))) RTC_TICK(void);
 void __attribute__((interrupt("IRQ"))) RTC_ALARM(void);
 void __attribute__((interrupt("IRQ"))) EINT8_23_Handler(void);
@@ -67,17 +60,20 @@ void EXTI_Init(){
 }
 
 void RTC_Init(){
-    // rRTCCON = (0x1CF);
+    uint16_t year = 19;
+    uint8_t month = 2;
+    uint8_t date = 15;
+    uint8_t hour = 12;
+    uint8_t minute = 29;
+    uint8_t second = 5;
 
     TICNT0.TICK_INT_EN = 1;
     TICNT0.TICK_TIME_CNT0 = 0;
     TICNT1.TICK_TIME_CNT1 = 1;
     TICNT2.TICK_TIME_CNT2 = 0;
-    // rTICNT0 = (0x80);
-    // rTICNT1 = (0x1);
-    // rTICNT2 = (0x0);
 
     RTC_Clear();
+    
     RTCCON.TICSEL2 = 14;
     RTCCON.TICSEL = 0;
     RTCCON.CLKRST = 0;
@@ -86,18 +82,8 @@ void RTC_Init(){
     RTCCON.RTCEN = 1;
 
     Uart_Printf("RTCCON = %x\r\n", RTCCON);
-    
-    // rRTCCON = ~(0x1F);
-    // rRTCCON = (0x1C1);
 
     Set_BCD_Time(year, month, date, hour, minute, second);
-    // rBCDYEAR = ((year / 10) << 4) + (year % 10);
-    // rBCDMON = ((month / 10) << 4) + (month % 10);
-    // rBCDDATE = ((date / 10) << 4) + (date % 10);
-    // rBCDHOUR = ((hour / 10) << 4) +(hour % 10);
-    // rBCDMIN = ((minute / 10) << 4) +(minute % 10);
-    // rBCDSEC = ((second / 10) << 4) +(second % 10);
-    //rRTCCON = (0x0);
 }
 
 void RTC_Tick_Init(){
