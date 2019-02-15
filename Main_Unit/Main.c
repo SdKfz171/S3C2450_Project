@@ -10,11 +10,14 @@
  *    s
  * =====================================================================
  */
+#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <stdio.h>
+#include <stdbool.h>
+
 #include <time.h>
 #include <math.h>
+
 #include "2450addr.h"
 #include "libc.h"
 #include "option.h"
@@ -27,8 +30,11 @@
 #define YELLOW  0xFFC0
 #define WHITE_P 0xFFFF
 
+bool PWM_Flag = true;
+
 void __attribute__((interrupt("IRQ"))) RTC_TICK(void);
 void __attribute__((interrupt("IRQ"))) RTC_ALARM(void);
+void __attribute__((interrupt("IRQ"))) TIMER2_Handler(void);
 void __attribute__((interrupt("IRQ"))) EINT8_23_Handler(void);
 
 void gpio_init(){
@@ -40,7 +46,7 @@ void gpio_init(){
     GPGCON.GPIO_PIN_7 = OUTPUT; 
 
     GPBCON.GPIO_PIN_1 = OUTPUT;
-    GPBCON.GPIO_PIN_2 = ALTERNATIVE_0;
+    GPBCON.GPIO_PIN_2 = OUTPUT;
     GPBDAT.GPIO_PIN_1 = HIGH;
 }
 
@@ -133,6 +139,25 @@ void timer0_init(){
 
 void Timer2_Init(){
     // PWM 진동모터
+    TCFG0.PRESCALER1 = (128 - 1);
+    TCFG1.MUX2 = 0;
+    rTCNTB2 = (PCLK / 128 / 2) / 20 - 1;
+    TCON.TIM2_MANUAL_UPDATE = 1;
+    
+    TCON.TIM2_AUTO_RELOAD = 1;
+    TCON.TIM2_MANUAL_UPDATE = 0;
+    TCON.TIM2_START = 0;
+}
+
+void Timer2_Int_Init(){
+    INTMOD1.INT_TIMER2 = IRQ;
+
+    SRCPND1.INT_TIMER2 = 1;
+    INTPND1.INT_TIMER2 = 1;    
+
+    INTMSK1.INT_TIMER2 = 0;
+
+    pISR_TIMER2 = (unsigned)TIMER2_Handler;
 }
 
 void delay_us(int us){
@@ -174,6 +199,14 @@ void Sound(uint16_t scale, int duration){
         duration -= ((10000 / scale / 10) * 2) * 2;
     }
     delay_ms(1);
+}
+
+void Viberate_On(){
+    TCON.TIM2_START = 1;
+}
+
+void Viberate_Off(){
+    TCON.TIM2_START = 0;
 }
 
 void Main(){
@@ -232,6 +265,16 @@ void __attribute__((interrupt("IRQ"))) RTC_ALARM(void){
     Uart_Printf("ALARM INT\r\n");
     Uart_Printf("ALARM INT\r\n");
     Uart_Printf("ALARM INT\r\n");
+}
+
+void __attribute__((interrupt("IRQ"))) TIMER2_Handler(void){
+    ClearPending1(BIT_TIMER2);
+    if(PWM_Flag)
+        GPBDAT.GPIO_PIN_2 = 1;
+    else
+        GPBDAT.GPIO_PIN_2 = 0;
+    
+    PWM_Flag = !PWM_Flag; 
 }
 
 void __attribute__((interrupt("IRQ"))) EINT8_23_Handler(void){
