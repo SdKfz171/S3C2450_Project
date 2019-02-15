@@ -218,6 +218,7 @@ typedef struct
     unsigned char CLKRST : 1;
     unsigned char TICSEL : 1;
     unsigned char TICSEL2 : 4;
+    unsigned char : 7;
 } RTCCON_;
 
 
@@ -633,10 +634,14 @@ typedef enum {
 #define EINTMASK    (*(volatile EINTMASK_ *)0x560000A4)
 #define EINTPEND    (*(volatile EINTPEND_ *)0x560000A8)
 
+void RTC_Clear(){
+    rRTCCON = ~(0x1F);
+}
+
 void Set_ALM_Time(uint8_t hour, uint8_t min, uint8_t sec){
     Set_ALM_Hour(hour);
     Set_ALM_Minute(min);
-    Set_ALM_Second(second);
+    Set_ALM_Second(sec);
 }
 
 void Set_ALM_Hour(uint8_t hour){
@@ -655,7 +660,8 @@ void Set_ALM_Second(uint8_t sec){
 }
 
 void Set_BCD_Time(uint16_t year, uint8_t mon, uint8_t date, 
-                    uint8_t hour, uint8_t min, uint8_t sec){
+                    uint8_t hour, uint8_t min, uint8_t sec)
+{
     Set_BCD_Year(year);
     Set_BCD_Month(mon);
     Set_BCD_Date(date);
@@ -665,6 +671,7 @@ void Set_BCD_Time(uint16_t year, uint8_t mon, uint8_t date,
 }
 
 void Set_BCD_Year(uint16_t year){
+    year %= 100;
     BCDYEAR.YEAR_10 = year / 10;
     BCDYEAR.YEAR_1 = year % 10;
 }

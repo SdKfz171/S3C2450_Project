@@ -29,10 +29,10 @@
 
 uint16_t year = 19;
 uint8_t month = 2;
-uint8_t date = 13;
-uint8_t hour = 17;
-uint8_t minute = 50;
-uint8_t second = 20;
+uint8_t date = 15;
+uint8_t hour = 11;
+uint8_t minute = 53;
+uint8_t second = 10;
 
 void __attribute__((interrupt("IRQ"))) RTC_TICK(void);
 void __attribute__((interrupt("IRQ"))) RTC_ALARM(void);
@@ -47,6 +47,7 @@ void gpio_init(){
     GPGCON.GPIO_PIN_7 = OUTPUT; 
 
     GPBCON.GPIO_PIN_1 = OUTPUT;
+    GPBCON.GPIO_PIN_2 = ALTERNATIVE_0;
     GPBDAT.GPIO_PIN_1 = HIGH;
 }
 
@@ -76,12 +77,16 @@ void RTC_Init(){
     // rTICNT1 = (0x1);
     // rTICNT2 = (0x0);
 
-    RTCCON.RTCEN = 0;
-    RTCCON.CLKSEL = 0;
-    RTCCON.CNTSEL = 0;
-    RTCCON.CLKRST = 0;
-    RTCCON.TICSEL = 0;
+    RTC_Clear();
     RTCCON.TICSEL2 = 14;
+    RTCCON.TICSEL = 0;
+    RTCCON.CLKRST = 0;
+    RTCCON.CNTSEL = 0;
+    RTCCON.CLKSEL = 0;
+    RTCCON.RTCEN = 1;
+
+    Uart_Printf("RTCCON = %x\r\n", RTCCON);
+    
     // rRTCCON = ~(0x1F);
     // rRTCCON = (0x1C1);
 
@@ -138,6 +143,10 @@ void timer0_init(){
     TCON.TIM0_AUTO_RELOAD = 1;
     TCON.TIM0_MANUAL_UPDATE = 0;
     TCON.TIM0_START = 1;
+}
+
+void Timer2_Init(){
+    // PWM 진동모터
 }
 
 void delay_us(int us){
@@ -215,20 +224,6 @@ void __attribute__((interrupt("IRQ"))) RTC_TICK(void){
     Lcd_Printf(10, 10, BLACK, WHITE, 4, 3, "%d/%2d/%2d %s", 2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)), wdays[get_weekday(2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)))]);
     Lcd_Printf(60, 60, BLACK, WHITE, 6, 9, "%02x : %02x", rBCDHOUR, rBCDMIN);
     Lcd_Printf(400, 150, BLACK, WHITE, 3, 2, "%02x", rBCDSEC);
-
-    // date++;
-    // if(date > mdays[((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)) - 1]){
-    //     date = 1;
-    //     month++;
-    // }
-    // if(month > 12){
-    //     month = 1;
-    //     year++;
-    // }
-
-    // rBCDYEAR = ((year / 10) << 4) + (year % 10);
-    // rBCDMON = ((month / 10) << 4) + (month % 10);
-    // rBCDDATE = ((date / 10) << 4) + (date % 10);
 }
 
 void __attribute__((interrupt("IRQ"))) RTC_ALARM(void){
