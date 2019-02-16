@@ -30,16 +30,23 @@
 #define YELLOW  0xFFC0
 #define WHITE_P 0xFFFF
 
+uint8_t Viberation_duty = 4;
+
 bool PWM_Flag = true;
+bool Lcd_Refresh = false;
+bool Alarm_State = true;
 
 void __attribute__((interrupt("IRQ"))) RTC_TICK(void);
 void __attribute__((interrupt("IRQ"))) RTC_ALARM(void);
 void __attribute__((interrupt("IRQ"))) TIMER2_Handler(void);
+void __attribute__((interrupt("IRQ"))) EINT0_Handler(void);
+void __attribute__((interrupt("IRQ"))) EINT4_7_Handler(void);
 void __attribute__((interrupt("IRQ"))) EINT8_23_Handler(void);
 
 void gpio_init(){
     // LED INIT
     GPGCON.GPIO_PIN_1 = ALTERNATIVE_0;  // 메뉴 전환 인터럽트 핀
+    GPGCON.GPIO_PIN_2 = OUTPUT;
     GPGCON.GPIO_PIN_4 = OUTPUT;
     GPGCON.GPIO_PIN_5 = OUTPUT;
     GPGCON.GPIO_PIN_6 = OUTPUT;
@@ -48,20 +55,40 @@ void gpio_init(){
     GPBCON.GPIO_PIN_1 = OUTPUT;
     GPBCON.GPIO_PIN_2 = OUTPUT;
     GPBDAT.GPIO_PIN_1 = HIGH;
+
+    GPFCON.GPIO_PIN_0 = ALTERNATIVE_0;
+    GPFCON.GPIO_PIN_4 = ALTERNATIVE_0;
 }
 
 void EXTI_Init(){
-    INTMOD1.EINT8_23 = IRQ;
+    // INTMOD1.EINT0 = IRQ;
+    // INTMOD1.EINT4_7 = IRQ;
+    // INTMOD1.EINT8_23 = IRQ;
 
+    SRCPND1.EINT0 = 1;
+    SRCPND1.EINT4_7 = 1;
     SRCPND1.EINT8_23 = 1;
+    
+    INTPND1.EINT0 = 1;
+    INTPND1.EINT4_7 = 1;
     INTPND1.EINT8_23 = 1;
+    
+    INTMSK1.EINT0 = 0;
+    INTMSK1.EINT4_7 = 0;
     INTMSK1.EINT8_23 = 0;
     
+    EXTINT0.EINT0 = FALLING_EDGE;
+    EXTINT0.EINT4 = FALLING_EDGE;
     EXTINT1.EINT9 = RISING_EDGE;
     
+    EINTPEND.EINT4 = 1;
     EINTPEND.EINT9 = 1;
+
+    EINTMASK.EINT4 = 0;
     EINTMASK.EINT9 = 0;
 
+    pISR_EINT0 = (unsigned)EINT0_Handler;
+    pISR_EINT0 = (unsigned)EINT0_Handler;
     pISR_EINT8_23 = (unsigned)EINT8_23_Handler;
 }
 
@@ -87,7 +114,7 @@ void RTC_Init(){
     RTCCON.CLKSEL = 0;
     RTCCON.RTCEN = 1;
 
-    Uart_Printf("RTCCON = %x\r\n", RTCCON);
+    //Uart_Printf("RTCCON = %x\r\n", RTCCON);
 
     Set_BCD_Time(year, month, date, hour, minute, second);
 }
@@ -202,11 +229,11 @@ void Sound(uint16_t scale, int duration){
 }
 
 void Viberate_On(){
-    TCON.TIM2_START = 1;
+    GPGDAT.GPIO_PIN_2 = 1;
 }
 
 void Viberate_Off(){
-    TCON.TIM2_START = 0;
+    GPGDAT.GPIO_PIN_2 = 0;
 }
 
 void Main(){
@@ -225,63 +252,108 @@ void Main(){
     Lcd_Clr_Screen(WHITE);
     Lcd_Select_Frame_Buffer(0);
 
-    // // Buzzer Test 
-    // Sound(C3, 500);
+    // Buzzer Test 
+    Sound(C3, 500);
     
+    // Vibration Motor Test
+    Viberate_On();  
+    delay_ms(500);
+    Viberate_Off();
+    delay_ms(500);
+
     while(1){
-        // Uart_Printf("%d %d %d\r\n",  ((rBCDHOUR >> 4) * 10) + (rBCDHOUR & (0xF)), ((rBCDMIN >> 4) * 10) + (rBCDMIN & (0xF)), ((rBCDSEC >> 4) * 10) + (rBCDSEC & (0xF)));
+
+        // if(Alarm_State){
+        //     Viberate_On();
+        //     delay_ms(500);
+        //     Viberate_Off();
+        //     delay_ms(500);
+        // }
+        // Uart_Printf("%d %d %d\r\n", BCDHOUR.HOUR_10 * 10 + BCDHOUR.HOUR_1, BCDMIN.MIN_10 * 10 + BCDMIN.MIN_1, BCDSEC.SEC_10 * 10 + BCDSEC.SEC_1);
     }
-}
-
-void __attribute__((interrupt("IRQ"))) RTC_TICK(void){
-    ClearPending1(BIT_TICK);
-    Uart_Printf("TICK INT\r\n");
-    
-    // LCD REFRESH
-    // Lcd_Clr_Screen(WHITE);
-    // rRTCCON = (0x1C1);
-    Lcd_Printf(10, 10, BLACK, WHITE, 4, 3, "%d/%2d/%2d %s", 2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)), wdays[get_weekday(2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)))]);
-    Lcd_Printf(60, 60, BLACK, WHITE, 6, 9, "%02x : %02x", rBCDHOUR, rBCDMIN);
-    Lcd_Printf(400, 150, BLACK, WHITE, 3, 2, "%02x", rBCDSEC);
-}
-
-void __attribute__((interrupt("IRQ"))) RTC_ALARM(void){
-    ClearPending1(BIT_RTC);
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
 }
 
 void __attribute__((interrupt("IRQ"))) TIMER2_Handler(void){
     ClearPending1(BIT_TIMER2);
-    if(PWM_Flag)
-        GPBDAT.GPIO_PIN_2 = 1;
-    else
-        GPBDAT.GPIO_PIN_2 = 0;
+    Uart_Printf("TIM2 INT\r\n");
+    // if(PWM_Flag)
+    //     GPGDAT.GPIO_PIN_2 = 1;
+    // else
+    //     GPGDAT.GPIO_PIN_2 = 0;
+
+    // PWM_Flag = !PWM_Flag; 
+}
+
+void __attribute__((interrupt("IRQ"))) RTC_TICK(void){
+    ClearPending1(BIT_TICK);
+    //Uart_Printf("TICK INT\r\n");
+    // if(Viberation_duty == 4)
+    //     Viberate_On();
+    // else if(Viberation_duty == 2)
+    //     Viberate_Off();
+    // else if(Viberation_duty == 0)
+    //     Viberation_duty = 5;
+
+    // Viberation_duty--;
     
-    PWM_Flag = !PWM_Flag; 
+    // LCD REFRESH
+    Lcd_Printf(10, 10, BLACK, WHITE, 4, 3, "%d/%2d/%2d %s", 2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)), wdays[get_weekday(2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)))]);
+            Lcd_Printf(60, 60, BLACK, WHITE, 6, 9, "%02x : %02x", rBCDHOUR, rBCDMIN);
+            Lcd_Printf(400, 150, BLACK, WHITE, 3, 2, "%02x", rBCDSEC);
+
+    // Lcd_Clr_Screen(WHITE);
+    // rRTCCON = (0x1C1);
+    
+    // Uart_Printf("%d\r\n", GPGDAT.GPIO_PIN_1);
+    //Uart_Printf("%d %d %d\r\n", BCDHOUR.HOUR_10 * 10 + BCDHOUR.HOUR_1, BCDMIN.MIN_10 * 10 + BCDMIN.MIN_1, BCDSEC.SEC_10 * 10 + BCDSEC.SEC_1);
+}
+
+void __attribute__((interrupt("IRQ"))) RTC_ALARM(void){
+    ClearPending1(BIT_RTC);
+
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+    Uart_Printf("ALARM INT\r\n");
+}
+
+void __attribute__((interrupt("IRQ"))) EINT0_Handler(void){
+    ClearPending1(BIT_EINT0);
+    Uart_Printf("EINT 0!!!\r\n");
+}
+
+void __attribute__((interrupt("IRQ"))) EINT4_7_Handler(void){
+    ClearPending1(BIT_EINT4_7);
+    if(rEINTPEND & (0x1 << 4)){
+        rEINTPEND = (0x1 << 4);
+        Uart_Printf("EINT 4!!!\r\n");
+    }
 }
 
 void __attribute__((interrupt("IRQ"))) EINT8_23_Handler(void){
     ClearPending1(BIT_EINT8_23);
-    if(EINTPEND.EINT9 == 1){
-        EINTPEND.EINT9 = 1;
-        // MENU Change
-
+    Uart_Printf("MENU Changed!!\r\n");
+    // if(EINTPEND.EINT9 == 1){
+    //     EINTPEND.EINT9 = 1;
+    //     // MENU Change
+        
+    // }
+    if(rEINTPEND & (0x1 << 9)){
+        rEINTPEND = 0x1 << 9;
+        Uart_Printf("MENU Changed!!\r\n");
     }
 }
