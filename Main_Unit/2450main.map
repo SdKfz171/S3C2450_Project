@@ -84,7 +84,7 @@ _ISR_START       0x33ffff00         0x00000100         rw
 Linker script and memory map
 
 
-.text           0x30000000     0xd78c
+.text           0x30000000     0xd7dc
  *s3c2450_startup.o(.text)
  .text          0x30000000      0x300 s3c2450_startup.o
                 0x30000000                _start
@@ -104,7 +104,7 @@ Linker script and memory map
  .text          0x300006e8      0x130 Timer.o
                 0x300006e8                Timer_Init
                 0x3000074c                Timer_Delay
- .text          0x30000818     0x16b4 Main.o
+ .text          0x30000818     0x1708 Main.o
                 0x30000818                RTC_Clear
                 0x30000840                Set_ALM_Time
                 0x300008bc                Set_ALM_Hour
@@ -135,389 +135,387 @@ Linker script and memory map
                 0x30001908                Main
                 0x30001990                TIMER2_Handler
                 0x300019e0                RTC_TICK
-                0x30001cb4                RTC_ALARM
-                0x30001d8c                EINT0_Handler
-                0x30001ddc                EINT4_7_Handler
-                0x30001e50                EINT8_23_Handler
- *fill*         0x30001ecc        0x4 00
- .text          0x30001ed0      0x498 Uart.o
-                0x30001ed0                Uart_Init
-                0x30001f8c                Uart2_Init
-                0x3000209c                Uart_Printf
-                0x300020e4                Uart2_Printf
-                0x3000212c                Uart_Send_String
-                0x3000217c                Uart2_Send_String
-                0x300021cc                Uart_Send_Byte
-                0x30002250                Uart2_Send_Byte
-                0x300022d4                Uart_Get_Char
-                0x3000231c                Uart2_Get_Char
- .text          0x30002368      0x184 exception.o
-                0x30002368                SWI_Handler
-                0x30002384                Undef_Handler
-                0x300023a0                Pabort_Handler
-                0x300023dc                Dabort_Handler
-                0x30002418                Exception_Init
- .text          0x300024ec     0x2324 Lcd_480x272.o
-                0x300024ec                Lcd_Envid_On_Off
-                0x30002550                Lcd_Power_Enable
-                0x30002574                Lcd_Port_Init
-                0x3000267c                Graphic_Init
-                0x300026b0                Lcd_Init
-                0x300027e4                Lcd_Set_Address
-                0x30002844                Lcd_Wait_Blank
-                0x3000285c                Lcd_Copy
-                0x300028e8                Lcd_Select_Frame_Buffer
-                0x30002928                Lcd_Display_Frame_Buffer
-                0x30002960                Lcd_Put_Pixel
-                0x300029c8                Lcd_Set_Tran_Mode
-                0x30002a14                Lcd_Clr_Screen
-                0x30002aa0                Lcd_Line
-                0x30002fb0                Lcd_Hline
-                0x30003048                Lcd_Vline
-                0x300030e0                Lcd_Rectangular
-                0x300031c4                Lcd_Fill_Rectangular
-                0x300032b8                Lcd_Han_Putch
-                0x300040d8                Lcd_Eng_Putch
-                0x30004340                Lcd_Puts
-                0x30004454                Lcd_Printf
-                0x300044c8                Lcd_Get_Info_BMP
-                0x30004520                Lcd_Draw_BMP
- .text          0x30004810      0x440 Calendar.o
-                0x30004810                leap_check
-                0x300048dc                get_days
-                0x30004954                get_weekday
-                0x30004aa0                disp_calendar
- .text          0x30004c50       0x7c /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-vsprintf.o)
-                0x30004c50                _vsprintf_r
-                0x30004ca0                vsprintf
- .text          0x30004ccc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-impure.o)
- .text          0x30004ccc     0x2138 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-svfprintf.o)
-                0x30004ccc                _svfprintf_r
- *fill*         0x30006e04        0x4 00
- .text          0x30006e08     0x17d0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-dtoa.o)
-                0x30006fd8                _dtoa_r
- .text          0x300085d8       0xd0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-locale.o)
-                0x300085d8                _setlocale_r
-                0x30008644                __locale_charset
-                0x30008650                __locale_mb_cur_max
-                0x30008660                __locale_msgcharset
-                0x3000866c                __locale_cjk_lang
-                0x30008674                _localeconv_r
-                0x30008680                setlocale
-                0x3000869c                localeconv
- .text          0x300086a8      0x70c /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
-                0x300086a8                _malloc_r
- .text          0x30008db4      0x104 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memchr.o)
-                0x30008db4                memchr
- .text          0x30008eb8      0x1c0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memcpy.o)
-                0x30008eb8                memcpy
- .text          0x30009078        0x8 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mlock.o)
-                0x30009078                __malloc_lock
-                0x3000907c                __malloc_unlock
- .text          0x30009080      0xcfc /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mprec.o)
-                0x30009080                _Balloc
-                0x30009108                _Bfree
-                0x30009124                __multadd
-                0x30009200                __s2b
-                0x300092ec                __hi0bits
-                0x3000933c                __lo0bits
-                0x300093cc                __i2b
-                0x300093f0                __multiply
-                0x300095d8                __pow5mult
-                0x300096cc                __lshift
-                0x300097d0                __mcmp
-                0x30009830                __mdiff
-                0x30009988                __ulp
-                0x300099e8                __b2d
-                0x30009aac                __d2b
-                0x30009bb4                __ratio
-                0x30009c2c                _mprec_log10
-                0x30009c80                __copybits
-                0x30009cf4                __any_on
- .text          0x30009d7c       0x8c /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-s_fpclassify.o)
-                0x30009d7c                __fpclassifyd
- .text          0x30009e08       0x40 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-sbrkr.o)
-                0x30009e08                _sbrk_r
- .text          0x30009e48      0x230 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-strcmp.o)
-                0x30009e48                strcmp
- .text          0x3000a078       0x60 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-strlen.o)
-                0x3000a078                strlen
- .text          0x3000a0d8     0x1238 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-svfiprintf.o)
-                0x3000a0d8                __ssprint_r
-                0x3000a274                _svfiprintf_r
- .text          0x3000b310       0x9c /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-callocr.o)
-                0x3000b310                _calloc_r
- .text          0x3000b3ac      0x360 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-freer.o)
-                0x3000b3ac                _malloc_trim_r
-                0x3000b4a8                _free_r
- .text          0x3000b70c      0x128 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memmove.o)
-                0x3000b70c                memmove
- .text          0x3000b834      0x100 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memset.o)
-                0x3000b834                memset
- .text          0x3000b934      0x5c0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-reallocr.o)
-                0x3000b934                _realloc_r
- .text          0x3000bef4      0x1ac /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-reent.o)
-                0x3000bef4                cleanup_glue
-                0x3000bf20                _reclaim_reent
-                0x3000c028                _wrapup_reent
- .text          0x3000c0a0      0x114 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_udivsi3.o)
-                0x3000c0a0                __udivsi3
-                0x3000c0a0                __aeabi_uidiv
-                0x3000c194                __aeabi_uidivmod
- .text          0x3000c1b4      0x148 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_divsi3.o)
-                0x3000c1b4                __aeabi_idiv
-                0x3000c1b4                __divsi3
-                0x3000c2dc                __aeabi_idivmod
- .text          0x3000c2fc        0x4 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_dvmd_tls.o)
-                0x3000c2fc                __aeabi_ldiv0
-                0x3000c2fc                __aeabi_idiv0
- .text          0x3000c300      0x41c /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_addsubdf3.o)
-                0x3000c300                __aeabi_drsub
-                0x3000c308                __aeabi_dsub
-                0x3000c308                __subdf3
-                0x3000c30c                __adddf3
-                0x3000c30c                __aeabi_dadd
-                0x3000c61c                __aeabi_ui2d
-                0x3000c61c                __floatunsidf
-                0x3000c640                __floatsidf
-                0x3000c640                __aeabi_i2d
-                0x3000c668                __extendsfdf2
-                0x3000c668                __aeabi_f2d
-                0x3000c6a8                __aeabi_ul2d
-                0x3000c6a8                __floatundidf
-                0x3000c6bc                __floatdidf
-                0x3000c6bc                __aeabi_l2d
- .text          0x3000c71c      0x49c /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_muldivdf3.o)
-                0x3000c71c                __aeabi_dmul
-                0x3000c71c                __muldf3
-                0x3000c9ac                __aeabi_ddiv
-                0x3000c9ac                __divdf3
- .text          0x3000cbb8      0x144 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_cmpdf2.o)
-                0x3000cbb8                __gtdf2
-                0x3000cbb8                __gedf2
-                0x3000cbc0                __ltdf2
-                0x3000cbc0                __ledf2
-                0x3000cbc8                __cmpdf2
-                0x3000cbc8                __eqdf2
-                0x3000cbc8                __nedf2
-                0x3000cc50                __aeabi_cdrcmple
-                0x3000cc6c                __aeabi_cdcmple
-                0x3000cc6c                __aeabi_cdcmpeq
-                0x3000cc84                __aeabi_dcmpeq
-                0x3000cc9c                __aeabi_dcmplt
-                0x3000ccb4                __aeabi_dcmple
-                0x3000cccc                __aeabi_dcmpge
-                0x3000cce4                __aeabi_dcmpgt
- .text          0x3000ccfc       0x5c /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_fixdfsi.o)
-                0x3000ccfc                __fixdfsi
-                0x3000ccfc                __aeabi_d2iz
- .text          0x3000cd58       0x54 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_fixunsdfsi.o)
-                0x3000cd58                __fixunsdfsi
-                0x3000cd58                __aeabi_d2uiz
- .text          0x3000cdac       0x3c /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_aeabi_uldivmod.o)
-                0x3000cdac                __aeabi_uldivmod
- .text          0x3000cde8       0x80 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(bpabi.o)
-                0x3000cde8                __gnu_ldivmod_helper
-                0x3000ce28                __gnu_uldivmod_helper
- .text          0x3000ce68      0x4a8 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_divdi3.o)
-                0x3000ce68                __divdi3
- .text          0x3000d310      0x434 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_udivdi3.o)
-                0x3000d310                __udivdi3
- .text          0x3000d744       0x48 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_clzsi2.o)
-                0x3000d744                __clzsi2
-                0x3000d78c                . = ALIGN (0x4)
+                0x30001d08                RTC_ALARM
+                0x30001de0                EINT0_Handler
+                0x30001e30                EINT4_7_Handler
+                0x30001ea4                EINT8_23_Handler
+ .text          0x30001f20      0x498 Uart.o
+                0x30001f20                Uart_Init
+                0x30001fdc                Uart2_Init
+                0x300020ec                Uart_Printf
+                0x30002134                Uart2_Printf
+                0x3000217c                Uart_Send_String
+                0x300021cc                Uart2_Send_String
+                0x3000221c                Uart_Send_Byte
+                0x300022a0                Uart2_Send_Byte
+                0x30002324                Uart_Get_Char
+                0x3000236c                Uart2_Get_Char
+ .text          0x300023b8      0x184 exception.o
+                0x300023b8                SWI_Handler
+                0x300023d4                Undef_Handler
+                0x300023f0                Pabort_Handler
+                0x3000242c                Dabort_Handler
+                0x30002468                Exception_Init
+ .text          0x3000253c     0x2324 Lcd_480x272.o
+                0x3000253c                Lcd_Envid_On_Off
+                0x300025a0                Lcd_Power_Enable
+                0x300025c4                Lcd_Port_Init
+                0x300026cc                Graphic_Init
+                0x30002700                Lcd_Init
+                0x30002834                Lcd_Set_Address
+                0x30002894                Lcd_Wait_Blank
+                0x300028ac                Lcd_Copy
+                0x30002938                Lcd_Select_Frame_Buffer
+                0x30002978                Lcd_Display_Frame_Buffer
+                0x300029b0                Lcd_Put_Pixel
+                0x30002a18                Lcd_Set_Tran_Mode
+                0x30002a64                Lcd_Clr_Screen
+                0x30002af0                Lcd_Line
+                0x30003000                Lcd_Hline
+                0x30003098                Lcd_Vline
+                0x30003130                Lcd_Rectangular
+                0x30003214                Lcd_Fill_Rectangular
+                0x30003308                Lcd_Han_Putch
+                0x30004128                Lcd_Eng_Putch
+                0x30004390                Lcd_Puts
+                0x300044a4                Lcd_Printf
+                0x30004518                Lcd_Get_Info_BMP
+                0x30004570                Lcd_Draw_BMP
+ .text          0x30004860      0x440 Calendar.o
+                0x30004860                leap_check
+                0x3000492c                get_days
+                0x300049a4                get_weekday
+                0x30004af0                disp_calendar
+ .text          0x30004ca0       0x7c /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-vsprintf.o)
+                0x30004ca0                _vsprintf_r
+                0x30004cf0                vsprintf
+ .text          0x30004d1c        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-impure.o)
+ .text          0x30004d1c     0x2138 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-svfprintf.o)
+                0x30004d1c                _svfprintf_r
+ *fill*         0x30006e54        0x4 00
+ .text          0x30006e58     0x17d0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-dtoa.o)
+                0x30007028                _dtoa_r
+ .text          0x30008628       0xd0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-locale.o)
+                0x30008628                _setlocale_r
+                0x30008694                __locale_charset
+                0x300086a0                __locale_mb_cur_max
+                0x300086b0                __locale_msgcharset
+                0x300086bc                __locale_cjk_lang
+                0x300086c4                _localeconv_r
+                0x300086d0                setlocale
+                0x300086ec                localeconv
+ .text          0x300086f8      0x70c /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+                0x300086f8                _malloc_r
+ .text          0x30008e04      0x104 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memchr.o)
+                0x30008e04                memchr
+ .text          0x30008f08      0x1c0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memcpy.o)
+                0x30008f08                memcpy
+ .text          0x300090c8        0x8 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mlock.o)
+                0x300090c8                __malloc_lock
+                0x300090cc                __malloc_unlock
+ .text          0x300090d0      0xcfc /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mprec.o)
+                0x300090d0                _Balloc
+                0x30009158                _Bfree
+                0x30009174                __multadd
+                0x30009250                __s2b
+                0x3000933c                __hi0bits
+                0x3000938c                __lo0bits
+                0x3000941c                __i2b
+                0x30009440                __multiply
+                0x30009628                __pow5mult
+                0x3000971c                __lshift
+                0x30009820                __mcmp
+                0x30009880                __mdiff
+                0x300099d8                __ulp
+                0x30009a38                __b2d
+                0x30009afc                __d2b
+                0x30009c04                __ratio
+                0x30009c7c                _mprec_log10
+                0x30009cd0                __copybits
+                0x30009d44                __any_on
+ .text          0x30009dcc       0x8c /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-s_fpclassify.o)
+                0x30009dcc                __fpclassifyd
+ .text          0x30009e58       0x40 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-sbrkr.o)
+                0x30009e58                _sbrk_r
+ .text          0x30009e98      0x230 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-strcmp.o)
+                0x30009e98                strcmp
+ .text          0x3000a0c8       0x60 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-strlen.o)
+                0x3000a0c8                strlen
+ .text          0x3000a128     0x1238 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-svfiprintf.o)
+                0x3000a128                __ssprint_r
+                0x3000a2c4                _svfiprintf_r
+ .text          0x3000b360       0x9c /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-callocr.o)
+                0x3000b360                _calloc_r
+ .text          0x3000b3fc      0x360 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-freer.o)
+                0x3000b3fc                _malloc_trim_r
+                0x3000b4f8                _free_r
+ .text          0x3000b75c      0x128 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memmove.o)
+                0x3000b75c                memmove
+ .text          0x3000b884      0x100 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memset.o)
+                0x3000b884                memset
+ .text          0x3000b984      0x5c0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-reallocr.o)
+                0x3000b984                _realloc_r
+ .text          0x3000bf44      0x1ac /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-reent.o)
+                0x3000bf44                cleanup_glue
+                0x3000bf70                _reclaim_reent
+                0x3000c078                _wrapup_reent
+ .text          0x3000c0f0      0x114 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_udivsi3.o)
+                0x3000c0f0                __udivsi3
+                0x3000c0f0                __aeabi_uidiv
+                0x3000c1e4                __aeabi_uidivmod
+ .text          0x3000c204      0x148 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_divsi3.o)
+                0x3000c204                __aeabi_idiv
+                0x3000c204                __divsi3
+                0x3000c32c                __aeabi_idivmod
+ .text          0x3000c34c        0x4 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_dvmd_tls.o)
+                0x3000c34c                __aeabi_ldiv0
+                0x3000c34c                __aeabi_idiv0
+ .text          0x3000c350      0x41c /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_addsubdf3.o)
+                0x3000c350                __aeabi_drsub
+                0x3000c358                __aeabi_dsub
+                0x3000c358                __subdf3
+                0x3000c35c                __adddf3
+                0x3000c35c                __aeabi_dadd
+                0x3000c66c                __aeabi_ui2d
+                0x3000c66c                __floatunsidf
+                0x3000c690                __floatsidf
+                0x3000c690                __aeabi_i2d
+                0x3000c6b8                __extendsfdf2
+                0x3000c6b8                __aeabi_f2d
+                0x3000c6f8                __aeabi_ul2d
+                0x3000c6f8                __floatundidf
+                0x3000c70c                __floatdidf
+                0x3000c70c                __aeabi_l2d
+ .text          0x3000c76c      0x49c /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_muldivdf3.o)
+                0x3000c76c                __aeabi_dmul
+                0x3000c76c                __muldf3
+                0x3000c9fc                __aeabi_ddiv
+                0x3000c9fc                __divdf3
+ .text          0x3000cc08      0x144 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_cmpdf2.o)
+                0x3000cc08                __gtdf2
+                0x3000cc08                __gedf2
+                0x3000cc10                __ltdf2
+                0x3000cc10                __ledf2
+                0x3000cc18                __cmpdf2
+                0x3000cc18                __eqdf2
+                0x3000cc18                __nedf2
+                0x3000cca0                __aeabi_cdrcmple
+                0x3000ccbc                __aeabi_cdcmple
+                0x3000ccbc                __aeabi_cdcmpeq
+                0x3000ccd4                __aeabi_dcmpeq
+                0x3000ccec                __aeabi_dcmplt
+                0x3000cd04                __aeabi_dcmple
+                0x3000cd1c                __aeabi_dcmpge
+                0x3000cd34                __aeabi_dcmpgt
+ .text          0x3000cd4c       0x5c /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_fixdfsi.o)
+                0x3000cd4c                __fixdfsi
+                0x3000cd4c                __aeabi_d2iz
+ .text          0x3000cda8       0x54 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_fixunsdfsi.o)
+                0x3000cda8                __fixunsdfsi
+                0x3000cda8                __aeabi_d2uiz
+ .text          0x3000cdfc       0x3c /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_aeabi_uldivmod.o)
+                0x3000cdfc                __aeabi_uldivmod
+ .text          0x3000ce38       0x80 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(bpabi.o)
+                0x3000ce38                __gnu_ldivmod_helper
+                0x3000ce78                __gnu_uldivmod_helper
+ .text          0x3000ceb8      0x4a8 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_divdi3.o)
+                0x3000ceb8                __divdi3
+ .text          0x3000d360      0x434 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_udivdi3.o)
+                0x3000d360                __udivdi3
+ .text          0x3000d794       0x48 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_clzsi2.o)
+                0x3000d794                __clzsi2
+                0x3000d7dc                . = ALIGN (0x4)
 
-.glue_7         0x3000d78c        0x0
+.glue_7         0x3000d7dc        0x0
  .glue_7        0x00000000        0x0 linker stubs
 
-.glue_7t        0x3000d78c        0x0
+.glue_7t        0x3000d7dc        0x0
  .glue_7t       0x00000000        0x0 linker stubs
 
-.vfp11_veneer   0x3000d78c        0x0
+.vfp11_veneer   0x3000d7dc        0x0
  .vfp11_veneer  0x00000000        0x0 linker stubs
 
-.v4_bx          0x3000d78c        0x0
+.v4_bx          0x3000d7dc        0x0
  .v4_bx         0x00000000        0x0 linker stubs
 
-.rodata         0x3000d790     0x85ac
-                0x3000d790                rodata_start_addr = .
+.rodata         0x3000d7e0     0x85b4
+                0x3000d7e0                rodata_start_addr = .
  *(.rodata)
- .rodata        0x3000d790       0x2c Key.o
- .rodata        0x3000d7bc       0x7c Main.o
- .rodata        0x3000d838       0x84 exception.o
- .rodata        0x3000d8bc     0x821c Lcd_480x272.o
-                0x3000d8bc                eng8x16
-                0x3000e8bc                han16x16
-                0x300115c0                HanTable
- .rodata        0x30015ad8       0x90 Calendar.o
- .rodata        0x30015b68        0x4 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-impure.o)
-                0x30015b68                _global_impure_ptr
- .rodata        0x30015b6c       0x20 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-svfprintf.o)
- *fill*         0x30015b8c        0x4 00
- .rodata        0x30015b90      0x128 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mprec.o)
-                0x30015ba0                __mprec_tens
-                0x30015c68                __mprec_bigtens
-                0x30015c90                __mprec_tinytens
- .rodata        0x30015cb8       0x20 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-svfiprintf.o)
+ .rodata        0x3000d7e0       0x2c Key.o
+ .rodata        0x3000d80c       0x88 Main.o
+ .rodata        0x3000d894       0x84 exception.o
+ .rodata        0x3000d918     0x821c Lcd_480x272.o
+                0x3000d918                eng8x16
+                0x3000e918                han16x16
+                0x3001161c                HanTable
+ .rodata        0x30015b34       0x90 Calendar.o
+ .rodata        0x30015bc4        0x4 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-impure.o)
+                0x30015bc4                _global_impure_ptr
+ .rodata        0x30015bc8       0x20 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-svfprintf.o)
+ .rodata        0x30015be8      0x128 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mprec.o)
+                0x30015bf8                __mprec_tens
+                0x30015cc0                __mprec_bigtens
+                0x30015ce8                __mprec_tinytens
+ .rodata        0x30015d10       0x20 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-svfiprintf.o)
  *(.rodata.*)
  .rodata.str1.4
-                0x30015cd8        0x2 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-impure.o)
+                0x30015d30        0x2 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-impure.o)
                                   0x4 (size before relaxing)
- *fill*         0x30015cda        0x2 00
+ *fill*         0x30015d32        0x2 00
  .rodata.str1.4
-                0x30015cdc       0x42 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-svfprintf.o)
+                0x30015d34       0x42 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-svfprintf.o)
                                  0x44 (size before relaxing)
- *fill*         0x30015d1e        0x2 00
+ *fill*         0x30015d76        0x2 00
  .rodata.str1.4
-                0x30015d20       0x10 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-dtoa.o)
+                0x30015d78       0x10 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-dtoa.o)
                                  0x14 (size before relaxing)
  .rodata.str1.4
-                0x30015d30        0xc /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-locale.o)
+                0x30015d88        0xc /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-locale.o)
                                  0x14 (size before relaxing)
  .rodata.str1.4
                 0x00000000       0x30 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-svfiprintf.o)
-                0x30015d3c                . = ALIGN (0x4)
-                0x30015d3c                rodata_end_addr = .
+                0x30015d94                . = ALIGN (0x4)
+                0x30015d94                rodata_end_addr = .
 
-.ARM.extab      0x30015d3c        0x0
- .ARM.extab     0x30015d3c        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_divdi3.o)
- .ARM.extab     0x30015d3c        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_udivdi3.o)
+.ARM.extab      0x30015d94        0x0
+ .ARM.extab     0x30015d94        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_divdi3.o)
+ .ARM.extab     0x30015d94        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_udivdi3.o)
 
-.ARM.exidx      0x30015d3c        0x8
- .ARM.exidx     0x30015d3c        0x8 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_divdi3.o)
- .ARM.exidx     0x30015d44        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_udivdi3.o)
+.ARM.exidx      0x30015d94        0x8
+ .ARM.exidx     0x30015d94        0x8 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_divdi3.o)
+ .ARM.exidx     0x30015d9c        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_udivdi3.o)
                                   0x8 (size before relaxing)
 
-.data           0x30015d48      0x9b8
-                0x30015d48                data_start_addr = .
-                0x30015d48                __DATA_START__ = .
+.data           0x30015da0      0x9b8
+                0x30015da0                data_start_addr = .
+                0x30015da0                __DATA_START__ = .
  *(.data)
- .data          0x30015d48        0x0 s3c2450_startup.o
- .data          0x30015d48        0x0 Key.o
- .data          0x30015d48        0x0 Led.o
- .data          0x30015d48        0x0 Timer.o
- .data          0x30015d48        0x3 Main.o
-                0x30015d48                Viberation_duty
-                0x30015d49                PWM_Flag
-                0x30015d4a                Alarm_State
- .data          0x30015d4b        0x0 Uart.o
- .data          0x30015d4b        0x0 exception.o
- *fill*         0x30015d4b        0x1 00
- .data          0x30015d4c       0xa8 Lcd_480x272.o
- .data          0x30015df4       0x4c Calendar.o
-                0x30015df4                mdays
-                0x30015e24                wdays
- .data          0x30015e40        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-vsprintf.o)
- .data          0x30015e40      0x430 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-impure.o)
-                0x30015e40                _impure_ptr
- .data          0x30016270        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-svfprintf.o)
- .data          0x30016270        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-dtoa.o)
- .data          0x30016270       0x7c /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-locale.o)
-                0x30016290                __mb_cur_max
- .data          0x300162ec      0x410 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
-                0x300162ec                __malloc_av_
-                0x300166f4                __malloc_sbrk_base
-                0x300166f8                __malloc_trim_threshold
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memchr.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memcpy.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mlock.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mprec.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-s_fpclassify.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-sbrkr.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-strcmp.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-strlen.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-svfiprintf.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-callocr.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-freer.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memmove.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memset.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-reallocr.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-reent.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_udivsi3.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_divsi3.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_dvmd_tls.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_addsubdf3.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_muldivdf3.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_cmpdf2.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_fixdfsi.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_fixunsdfsi.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_aeabi_uldivmod.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(bpabi.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_divdi3.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_udivdi3.o)
- .data          0x300166fc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_clzsi2.o)
+ .data          0x30015da0        0x0 s3c2450_startup.o
+ .data          0x30015da0        0x0 Key.o
+ .data          0x30015da0        0x0 Led.o
+ .data          0x30015da0        0x0 Timer.o
+ .data          0x30015da0        0x3 Main.o
+                0x30015da0                Viberation_duty
+                0x30015da1                PWM_Flag
+                0x30015da2                Alarm_State
+ .data          0x30015da3        0x0 Uart.o
+ .data          0x30015da3        0x0 exception.o
+ *fill*         0x30015da3        0x1 00
+ .data          0x30015da4       0xa8 Lcd_480x272.o
+ .data          0x30015e4c       0x4c Calendar.o
+                0x30015e4c                mdays
+                0x30015e7c                wdays
+ .data          0x30015e98        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-vsprintf.o)
+ .data          0x30015e98      0x430 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-impure.o)
+                0x30015e98                _impure_ptr
+ .data          0x300162c8        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-svfprintf.o)
+ .data          0x300162c8        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-dtoa.o)
+ .data          0x300162c8       0x7c /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-locale.o)
+                0x300162e8                __mb_cur_max
+ .data          0x30016344      0x410 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+                0x30016344                __malloc_av_
+                0x3001674c                __malloc_sbrk_base
+                0x30016750                __malloc_trim_threshold
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memchr.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memcpy.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mlock.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mprec.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-s_fpclassify.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-sbrkr.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-strcmp.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-strlen.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-svfiprintf.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-callocr.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-freer.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memmove.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memset.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-reallocr.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-reent.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_udivsi3.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_divsi3.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_dvmd_tls.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_addsubdf3.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_muldivdf3.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_cmpdf2.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_fixdfsi.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_fixunsdfsi.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_aeabi_uldivmod.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(bpabi.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_divdi3.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_udivdi3.o)
+ .data          0x30016754        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_clzsi2.o)
  *(.data.*)
-                0x30016700                . = ALIGN (0x8)
- *fill*         0x300166fc        0x4 00
-                0x30016700                data_end_addr = .
-                0x30016700                __DATA_END__ = .
+                0x30016758                . = ALIGN (0x8)
+ *fill*         0x30016754        0x4 00
+                0x30016758                data_end_addr = .
+                0x30016758                __DATA_END__ = .
 
-.bss            0x30016700       0x68
-                0x30016700                bss_start_addr = .
-                0x30016700                __BSS_START__ = .
+.bss            0x30016758       0x68
+                0x30016758                bss_start_addr = .
+                0x30016758                __BSS_START__ = .
  *(.bss)
- .bss           0x30016700        0x0 s3c2450_startup.o
- .bss           0x30016700        0x0 Key.o
- .bss           0x30016700        0x0 Led.o
- .bss           0x30016700        0x0 Timer.o
- .bss           0x30016700        0x1 Main.o
-                0x30016700                Lcd_Refresh
- .bss           0x30016701        0x0 Uart.o
- .bss           0x30016701        0x0 exception.o
- *fill*         0x30016701        0x3 00
- .bss           0x30016704       0x20 Lcd_480x272.o
-                0x30016704                Fb_ptr
- .bss           0x30016724        0x0 Calendar.o
- .bss           0x30016724        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-vsprintf.o)
- .bss           0x30016724        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-impure.o)
- .bss           0x30016724        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-svfprintf.o)
- .bss           0x30016724        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-dtoa.o)
- .bss           0x30016724        0xc /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-locale.o)
-                0x30016724                __nlocale_changed
-                0x30016728                __mlocale_changed
-                0x3001672c                _PathLocale
- .bss           0x30016730       0x34 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
-                0x30016730                __malloc_top_pad
-                0x30016734                __malloc_current_mallinfo
-                0x3001675c                __malloc_max_sbrked_mem
-                0x30016760                __malloc_max_total_mem
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memchr.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memcpy.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mlock.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mprec.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-s_fpclassify.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-sbrkr.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-strcmp.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-strlen.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-svfiprintf.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-callocr.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-freer.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memmove.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memset.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-reallocr.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-reent.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_udivsi3.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_divsi3.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_dvmd_tls.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_addsubdf3.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_muldivdf3.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_cmpdf2.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_fixdfsi.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_fixunsdfsi.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_aeabi_uldivmod.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(bpabi.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_divdi3.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_udivdi3.o)
- .bss           0x30016764        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_clzsi2.o)
+ .bss           0x30016758        0x0 s3c2450_startup.o
+ .bss           0x30016758        0x0 Key.o
+ .bss           0x30016758        0x0 Led.o
+ .bss           0x30016758        0x0 Timer.o
+ .bss           0x30016758        0x1 Main.o
+                0x30016758                Lcd_Refresh
+ .bss           0x30016759        0x0 Uart.o
+ .bss           0x30016759        0x0 exception.o
+ *fill*         0x30016759        0x3 00
+ .bss           0x3001675c       0x20 Lcd_480x272.o
+                0x3001675c                Fb_ptr
+ .bss           0x3001677c        0x0 Calendar.o
+ .bss           0x3001677c        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-vsprintf.o)
+ .bss           0x3001677c        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-impure.o)
+ .bss           0x3001677c        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-svfprintf.o)
+ .bss           0x3001677c        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-dtoa.o)
+ .bss           0x3001677c        0xc /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-locale.o)
+                0x3001677c                __nlocale_changed
+                0x30016780                __mlocale_changed
+                0x30016784                _PathLocale
+ .bss           0x30016788       0x34 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mallocr.o)
+                0x30016788                __malloc_top_pad
+                0x3001678c                __malloc_current_mallinfo
+                0x300167b4                __malloc_max_sbrked_mem
+                0x300167b8                __malloc_max_total_mem
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memchr.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memcpy.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mlock.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-mprec.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-s_fpclassify.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-sbrkr.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-strcmp.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-strlen.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-svfiprintf.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-callocr.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-freer.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memmove.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-memset.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-reallocr.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-reent.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_udivsi3.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_divsi3.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_dvmd_tls.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_addsubdf3.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_muldivdf3.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_cmpdf2.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_fixdfsi.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_arm_fixunsdfsi.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_aeabi_uldivmod.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(bpabi.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_divdi3.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_udivdi3.o)
+ .bss           0x300167bc        0x0 /home/kdy560200/arm-2011.03/lib/gcc/arm-none-eabi/4.5.2/libgcc.a(_clzsi2.o)
  *(.bss.*)
  *(COMMON)
- COMMON         0x30016764        0x4 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-reent.o)
-                0x30016764                errno
-                0x30016768                . = ALIGN (0x8)
-                0x30016768                bss_end_addr = .
-                0x30016768                __BSS_END__ = .
-                0x30016768                end = .
-                0x30016768                PROVIDE (end, .)
+ COMMON         0x300167bc        0x4 /home/kdy560200/arm-2011.03/arm-none-eabi/lib/libc.a(lib_a-reent.o)
+                0x300167bc                errno
+                0x300167c0                . = ALIGN (0x8)
+                0x300167c0                bss_end_addr = .
+                0x300167c0                __BSS_END__ = .
+                0x300167c0                end = .
+                0x300167c0                PROVIDE (end, .)
 
 .int_vec        0x33ffff00       0xc0
  s3c2450_startup.o(int_vect)
@@ -684,16 +682,16 @@ OUTPUT(MDS2450 elf32-littlearm)
  .comment       0x00000000       0x2b Lcd_480x272.o
  .comment       0x00000000       0x2b Calendar.o
 
-.debug_line     0x00000000      0xaf2
+.debug_line     0x00000000      0xaf6
  .debug_line    0x00000000       0xba s3c2450_startup.o
  .debug_line    0x000000ba       0x92 Key.o
  .debug_line    0x0000014c       0x58 Led.o
  .debug_line    0x000001a4       0x4f Timer.o
- .debug_line    0x000001f3      0x1fa Main.o
- .debug_line    0x000003ed      0x10f Uart.o
- .debug_line    0x000004fc       0x67 exception.o
- .debug_line    0x00000563      0x4ba Lcd_480x272.o
- .debug_line    0x00000a1d       0xd5 Calendar.o
+ .debug_line    0x000001f3      0x1fe Main.o
+ .debug_line    0x000003f1      0x10f Uart.o
+ .debug_line    0x00000500       0x67 exception.o
+ .debug_line    0x00000567      0x4ba Lcd_480x272.o
+ .debug_line    0x00000a21       0xd5 Calendar.o
 
 .debug_info     0x00000000     0x33d5
  .debug_info    0x00000000       0x69 s3c2450_startup.o

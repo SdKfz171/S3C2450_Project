@@ -297,10 +297,17 @@ void __attribute__((interrupt("IRQ"))) RTC_TICK(void){
     // Viberation_duty--;
     
     // LCD REFRESH
-    Lcd_Printf(10, 10, BLACK, WHITE, 4, 3, "%d/%2d/%2d %s", 2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)), wdays[get_weekday(2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)))]);
-            Lcd_Printf(60, 60, BLACK, WHITE, 6, 9, "%02x : %02x", rBCDHOUR, rBCDMIN);
-            Lcd_Printf(400, 150, BLACK, WHITE, 3, 2, "%02x", rBCDSEC);
+    
 
+
+    if(GPGDAT.GPIO_PIN_1){
+        Lcd_Printf(60, 60, BLACK, WHITE, 4, 7, "TEMP : 20");
+    }
+    else {
+        Lcd_Printf(10, 10, BLACK, WHITE, 4, 3, "%d/%2d/%2d %s", 2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)), wdays[get_weekday(2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)))]);
+        Lcd_Printf(60, 60, BLACK, WHITE, 6, 9, "%02x : %02x", rBCDHOUR, rBCDMIN);
+        Lcd_Printf(400, 150, BLACK, WHITE, 3, 2, "%02x", rBCDSEC);
+    }
     // Lcd_Clr_Screen(WHITE);
     // rRTCCON = (0x1C1);
     
