@@ -12,16 +12,28 @@
  */
 #ifndef __LIBC_H__
 #define __LIBC_H__
+#pragma once
+#include "2450addr.h"
 
-// extern void MemFill(unsigned long ptr, unsigned long pattern, int size);
-// extern void MemDump(unsigned long ptr, int size);
+extern void MemFill(unsigned long ptr, unsigned long pattern, int size);
+extern void MemDump(unsigned long ptr, int size);
 
 // Uart ���� �Լ� 
 extern void Uart_Init(int baud);
+extern void Uart2_Init(int baud);
+extern void Uart2_DMA_Init(int baud);
+
 extern void Uart_Printf(char *fmt,...);
+extern void Uart2_Printf(char *fmt,...);
+
 extern void Uart_Send_String(char *pt);
+extern void Uart2_Send_String(char *pt);
+
 extern void Uart_Send_Byte(int data);
+extern void Uart2_Send_Byte(int data);
+
 extern char Uart_Get_Char();
+extern char Uart2_Get_Char();
 
 // LED ���� �Լ� 
 extern void Led_Init();
@@ -40,6 +52,7 @@ extern void Lcd_Display_Frame_Buffer(unsigned int id);
 extern void Lcd_Set_Tran_Mode(int mode);
 extern void Lcd_Put_Pixel(int x,int y,int c);
 extern void Lcd_Clr_Screen(unsigned long color);
+extern void Lcd_Part_Clr_Screen(unsigned int sx, unsigned int sy, unsigned int width, unsigned int height, unsigned long color);
 extern void Lcd_Hline(int y, int x1, int x2, int color);
 extern void Lcd_Vline(int x, int y1, int y2, int color);
 extern void Lcd_Line(int x1,int y1,int x2,int y2,int color);
@@ -56,6 +69,30 @@ extern int leap_check(int year);
 extern int get_days(int year, int month);
 extern int get_weekday(int year, int month, int date);
 extern void disp_calendar(int year, int month);
+
+extern void RTC_Clear();
+extern void Set_ALM_Time(unsigned char hour, unsigned char min, unsigned char sec);
+extern void Set_ALM_Hour(unsigned char hour);
+extern void Set_ALM_Minute(unsigned char min);
+extern void Set_ALM_Second(unsigned char sec);
+extern void Set_BCD_Time(unsigned short year, unsigned char mon, unsigned char date, 
+                    unsigned char hour, unsigned char min, unsigned char sec);
+extern void Set_BCD_Year(unsigned short year);
+extern void Set_BCD_Month(unsigned char mon);
+extern void Set_BCD_Date(unsigned char date);
+extern void Set_BCD_Hour(unsigned char hour);
+extern void Set_BCD_Minute(unsigned char min);
+extern void Set_BCD_Second(unsigned char sec);
+
+// Dma.c
+extern void DMA0_SW_Init(void);
+extern void DMA0_Timer_Init(void);
+extern void DMA0_UART_Init(void);
+extern void DMA0_SW_Start(void);
+extern void DMA0_HW_Start(void);
+
+
+#pragma region Structer
 
 typedef struct {
     unsigned char GPIO_PIN_0    : 1;
@@ -169,8 +206,7 @@ typedef struct {
     unsigned char RESERVED : 8;
 } TCFG0_;
 
-typedef struct 
-{
+typedef struct {
     unsigned char MUX0 : 4;
     unsigned char MUX1 : 4;
     unsigned char MUX2 : 4;
@@ -180,8 +216,7 @@ typedef struct
     unsigned char RESERVED : 8;
 } TCFG1_;
 
-typedef struct 
-{
+typedef struct {
     unsigned char TIM0_START : 1;
     unsigned char TIM0_MANUAL_UPDATE : 1;
     unsigned char TIM0_OUTPUT_INVERTER : 1;
@@ -210,8 +245,7 @@ typedef struct
     unsigned char TIM4_AUTO_RELOAD : 1;
 } TCON_;
 
-typedef struct 
-{
+typedef struct {
     unsigned char RTCEN : 1;
     unsigned char CLKSEL : 1;
     unsigned char CNTSEL : 1;
@@ -220,7 +254,6 @@ typedef struct
     unsigned char TICSEL2 : 4;
     // unsigned char : 7;
 } RTCCON_;
-
 
 typedef struct 
 {
@@ -555,6 +588,9 @@ typedef struct
     unsigned char SEC_1 : 4;
     unsigned char SEC_10 : 3;
 } SEC;
+
+#pragma endregion
+
 /*
     옥타브 	    0 	    1 	    2 	    3 	    4 	    5 	    6 	    7 	    8
     도(C) 	    16      33      65 	    131     262     523     1047    2093 	4186
@@ -585,6 +621,8 @@ typedef enum {
     A0_ = 29,   A1_ = 166,  A2_ = 117,  A3_ = 233,  A4_ = 466,  A5_ = 932,  A6_ = 1865, A7_ = 3729, A8_ = 7459,
     B0 = 31,    B1 = 191,   B2 = 124,   B3 = 247,   B4 = 494,   B5 = 988,   B6 = 1976,  B7 = 3951,  B8 = 7902
 } SCALE;
+
+#pragma region REGISTER
 
 #define GPGCON  (*(volatile GPCON *)0x56000060)
 #define GPGDAT  (*(volatile GPIOG *)0x56000064)
@@ -634,71 +672,8 @@ typedef enum {
 #define EINTMASK    (*(volatile EINTMASK_ *)0x560000A4)
 #define EINTPEND    (*(volatile EINTPEND_ *)0x560000A8)
 
-void RTC_Clear(){
-    rRTCCON = ~(0x1F);
-}
+#pragma endregion
 
-void Set_ALM_Time(uint8_t hour, uint8_t min, uint8_t sec){
-    Set_ALM_Hour(hour);
-    Set_ALM_Minute(min);
-    Set_ALM_Second(sec);
-}
 
-void Set_ALM_Hour(uint8_t hour){
-    ALMHOUR.HOUR_10 = hour / 10;
-    ALMHOUR.HOUR_1 = hour % 10;
-}
-
-void Set_ALM_Minute(uint8_t min){
-    ALMMIN.MIN_10 = min / 10;
-    ALMMIN.MIN_1 = min % 10;
-}
-
-void Set_ALM_Second(uint8_t sec){
-    ALMSEC.SEC_10 = sec / 10;
-    ALMSEC.SEC_1 = sec % 10;
-}
-
-void Set_BCD_Time(uint16_t year, uint8_t mon, uint8_t date, 
-                    uint8_t hour, uint8_t min, uint8_t sec)
-{
-    Set_BCD_Year(year);
-    Set_BCD_Month(mon);
-    Set_BCD_Date(date);
-    Set_BCD_Hour(hour);
-    Set_BCD_Minute(min);
-    Set_BCD_Second(sec);
-}
-
-void Set_BCD_Year(uint16_t year){
-    year %= 100;
-    BCDYEAR.YEAR_10 = year / 10;
-    BCDYEAR.YEAR_1 = year % 10;
-}
-
-void Set_BCD_Month(uint8_t mon){
-    BCDMON.MON_10 = mon / 10;
-    BCDMON.MON_1 = mon % 10;
-}
-
-void Set_BCD_Date(uint8_t date){
-    BCDDATE.DATE_10 = date / 10;
-    BCDDATE.DATE_1 = date % 10;
-}
-
-void Set_BCD_Hour(uint8_t hour){
-    BCDHOUR.HOUR_10 = hour / 10;
-    BCDHOUR.HOUR_1 = hour % 10;
-}
-
-void Set_BCD_Minute(uint8_t min){
-    BCDMIN.MIN_10 = min / 10;
-    BCDMIN.MIN_1 = min % 10;
-}
-
-void Set_BCD_Second(uint8_t sec){
-    BCDSEC.SEC_10 = sec / 10;
-    BCDSEC.SEC_1 = sec % 10;
-}
 
 #endif

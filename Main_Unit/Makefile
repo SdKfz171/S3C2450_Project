@@ -16,8 +16,8 @@ TOPDIR =$(PWD)
 TOOLPATH = /home/kdy560200/arm-2011.03
 #TOOLPATH = /opt/CodeSourcery/Sourcery_G++_Lite
 
-SRCS	= Key.c Led.c Timer.c Main.c Uart.c exception.c Lcd_480x272.c Calendar.c
-ASRCS	= s3c2450_startup.S 
+SRCS	= Key.c Led.c Timer.c Main.c Uart.c exception.c Lcd_480x272.c Calendar.c Dma.c libc.c Rtc.c
+ASRCS	= s3c2450_startup.S libs.S
 
 OBJS	= ${SRCS:.c=.o} ${ASRCS:.S=.o}
 

@@ -1,6 +1,6 @@
 #include "2450addr.h"
 #include <stdarg.h>
-#include "libc.h"
+// #include "libc.h"
 #include "option.h"
 
 #define DMA	1
@@ -53,19 +53,19 @@ void Uart_Init(int baud)
 
 void Uart2_Init(int baud)
 {
-   int pclk;
-   pclk = PCLK;
-   
-   // PORT GPIO initial
-   rGPHCON &= ~(0xf<<8);
-   rGPHCON |= (0xa<<8);   
+	int pclk;
+	pclk = PCLK;
+	
+	// PORT GPIO initial
+	rGPHCON &= ~(0xf<<8);
+	rGPHCON |= (0xa<<8);   
 
    
-   rUFCON2= 0x0;
-   rUMCON2 = 0x0;
-   
-   /* TODO : Line Control(Normal mode, No parity, One stop bit, 8bit Word length */
-   rULCON2 = 0x3;
+	rUFCON2= 0x0;
+	rUMCON2 = 0x0;
+	
+	/* TODO : Line Control(Normal mode, No parity, One stop bit, 8bit Word length */
+	rULCON2 = 0x3;
 
       /* TODO : Transmit & Receive Mode is polling mode  */
       rUCON2  = (0x5);      // fix
@@ -73,6 +73,22 @@ void Uart2_Init(int baud)
       /* TODO : Baud rate ¼³Á¤  */      
       rUBRDIV2= ((unsigned int)(PCLK/16./baud+0.5)-1 ); 
       //(*(volatile unsigned *)0x50000802c )= 0xDFDD;
+}
+
+void Uart2_DMA_Init(int baud){
+	// PORT GPIO initial
+   	rGPHCON &= ~(0xf<<8);
+   	rGPHCON |= (0xa<<8);   
+
+	rUFCON2= 0x0;
+	rUMCON2 = 0x0;
+	
+	/* TODO : Line Control(Normal mode, No parity, One stop bit, 8bit Word length */
+	rULCON2 = 0x3;
+
+	rUCON2 = (1 << 9) + (1 << 6) + (1 << 2) + (2);
+
+	rUBRDIV2= ((unsigned int)(PCLK/16./baud+0.5)-1 ); 
 }
 
 void Uart_Printf(char *fmt,...)

@@ -10,6 +10,7 @@
  *    s
  * =====================================================================
  */
+#pragma region Includes
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -21,6 +22,11 @@
 #include "2450addr.h"
 #include "libc.h"
 #include "option.h"
+#pragma endregion
+
+#pragma region Definition
+#define LCD_XSIZE 		(480)	
+#define LCD_YSIZE 		(272)
 
 #define BLACK   0x0000
 #define WHITE   0xFFFE
@@ -29,20 +35,30 @@
 #define RED     0xF800
 #define YELLOW  0xFFC0
 #define WHITE_P 0xFFFF
+#pragma endregion
 
 uint8_t Viberation_duty = 4;
+uint8_t Old_Sec = 0;
 
 bool PWM_Flag = true;
 bool Lcd_Refresh = false;
 bool Alarm_State = true;
 
+static unsigned long src = 0x33000000;
+static unsigned long dst = 0x33100000;
+static unsigned int size = 6;
+static unsigned long pattern;
+
+#pragma region Prototype
 void __attribute__((interrupt("IRQ"))) RTC_TICK(void);
 void __attribute__((interrupt("IRQ"))) RTC_ALARM(void);
+void __attribute__((interrupt("IRQ"))) DMA_Handler(void);
 void __attribute__((interrupt("IRQ"))) TIMER2_Handler(void);
 void __attribute__((interrupt("IRQ"))) EINT0_Handler(void);
 void __attribute__((interrupt("IRQ"))) EINT4_7_Handler(void);
 void __attribute__((interrupt("IRQ"))) EINT8_23_Handler(void);
-
+#pragma endregion
+#pragma region Init_Function
 void gpio_init(){
     // LED INIT
     GPGCON.GPIO_PIN_1 = ALTERNATIVE_0;  // 메뉴 전환 인터럽트 핀
@@ -61,35 +77,46 @@ void gpio_init(){
 }
 
 void EXTI_Init(){
-    // INTMOD1.EINT0 = IRQ;
-    // INTMOD1.EINT4_7 = IRQ;
-    // INTMOD1.EINT8_23 = IRQ;
+    rINTMOD1 = IRQ;
 
-    SRCPND1.EINT0 = 1;
-    SRCPND1.EINT4_7 = 1;
-    SRCPND1.EINT8_23 = 1;
+    rSRCPND1 |= BIT_EINT0 | BIT_EINT4_7 | BIT_EINT8_23;
     
-    INTPND1.EINT0 = 1;
-    INTPND1.EINT4_7 = 1;
-    INTPND1.EINT8_23 = 1;
-    
-    INTMSK1.EINT0 = 0;
-    INTMSK1.EINT4_7 = 0;
-    INTMSK1.EINT8_23 = 0;
-    
+    rINTPND1 |= BIT_EINT0 | BIT_EINT4_7 | BIT_EINT8_23;
+
+    rINTMSK1 &= ~(BIT_EINT0 | BIT_EINT4_7 | BIT_EINT8_23); 
+
+    // rEXTINT0 = (rEXTINT0 & ~(0x7 << 4)) | (FALLING_EDGE << 4);
+    // rEXTINT0 |= (rEXTINT0 & ~(0x7 << 0)) | (FALLING_EDGE << 0);
+    // rEXTINT1 = (rEXTINT1 & ~(0x7 << 1)) | (RISING_EDGE << 1);
+
     EXTINT0.EINT0 = FALLING_EDGE;
     EXTINT0.EINT4 = FALLING_EDGE;
     EXTINT1.EINT9 = RISING_EDGE;
     
-    EINTPEND.EINT4 = 1;
-    EINTPEND.EINT9 = 1;
+    rEINTPEND = (0x1 << 9);
+    rEINTPEND |= (0x1 << 4); 
+    // EINTPEND.EINT4 = 1;
+    // EINTPEND.EINT9 = 1;
 
-    EINTMASK.EINT4 = 0;
-    EINTMASK.EINT9 = 0;
+    rEINTMASK &= ~((0x1 << 4) | (0x1 << 9));
+    // EINTMASK.EINT4 = 0;
+    // EINTMASK.EINT9 = 0;
 
     pISR_EINT0 = (unsigned)EINT0_Handler;
-    pISR_EINT0 = (unsigned)EINT0_Handler;
+    pISR_EINT4_7 = (unsigned)EINT4_7_Handler;
     pISR_EINT8_23 = (unsigned)EINT8_23_Handler;
+}
+
+void DMA_Init(){
+    Uart2_DMA_Init(115200);
+    DMA0_UART_Init();
+    
+    rINTSUBMSK &= ~(0x1 << 18);
+    rINTMSK1 &= ~(0x1 << 17);
+
+    pISR_DMA0 = (unsigned)DMA_Handler;
+
+    DMA0_HW_Start();
 }
 
 void RTC_Init(){
@@ -186,7 +213,8 @@ void Timer2_Int_Init(){
 
     pISR_TIMER2 = (unsigned)TIMER2_Handler;
 }
-
+#pragma endregion
+#pragma region PV_Function
 void delay_us(int us){
     volatile unsigned long now, last, diff;
     now = rTCNTO0;
@@ -236,11 +264,84 @@ void Viberate_Off(){
     GPGDAT.GPIO_PIN_2 = 0;
 }
 
+void Time_Show(){
+    if(Old_Sec != rBCDSEC) {
+        Lcd_Printf(10, 10, BLACK, WHITE, 4, 3, "%d/%2d/%2d %s", 2000 + BCDYEAR.YEAR_10 * 10 + BCDYEAR.YEAR_1, BCDMIN.MIN_10 * 10 + BCDMIN.MIN_1, BCDDATE.DATE_10 * 10 + BCDDATE.DATE_1, wdays[get_weekday(2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)))]);
+        Lcd_Printf(60, 60, BLACK, WHITE, 6, 9, "%02x : %02x", rBCDHOUR, rBCDMIN);
+        Lcd_Printf(400, 150, BLACK, WHITE, 3, 2, "%02x", rBCDSEC);
+
+        Old_Sec = rBCDSEC;
+    }
+}
+
+void TaskBar_Time_Show(){
+    if(Old_Sec != rBCDSEC) {
+        Lcd_Printf(10, 10, BLACK, WHITE, 2, 2, "%d/%2d/%2d %s %02x : %02x", 2000 + BCDYEAR.YEAR_10 * 10 + BCDYEAR.YEAR_1, BCDMON.MON_10 * 10 + BCDMON.MON_1, BCDDATE.DATE_10 * 10 + BCDDATE.DATE_1, wdays[get_weekday(2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)))], rBCDHOUR, rBCDMIN);
+        Lcd_Printf(370, 25, BLACK, WHITE, 1, 1, "%02x", rBCDSEC);
+
+        Old_Sec = rBCDSEC;
+    }
+}
+
+void Temp_Show(){
+    uint8_t RxBuffer[6];
+    uint8_t i = 0;
+
+    Uart2_Send_String("TEMP");
+    
+    Uart_Printf("TEMP IN\r\n");
+
+    while(Uart2_Get_Char() != 'H');
+    RxBuffer[0] = 'H';
+    Uart_Printf("%x", RxBuffer[0]);
+    for(i = 1; i < 6; i++){
+        RxBuffer[i] = Uart2_Get_Char();
+        Uart_Printf("%x", RxBuffer[i]);
+    }
+    
+    Uart_Printf("\r\n");
+
+    Uart_Printf("TEMP DATA IN\r\n");
+
+    Uart_Printf("%s\r\n", RxBuffer);
+    
+    TaskBar_Time_Show();
+    Lcd_Printf(10, 50, BLACK, WHITE, 4, 5, "TEMP : %dC", RxBuffer[4]);
+    Lcd_Printf(10, 150, BLACK, WHITE, 4, 5, "HUMI : %d%%", RxBuffer[1]);
+}
+
+void Dust_Show(){
+    uint8_t RxBuffer[6];
+    uint8_t i = 0;
+
+    Uart2_Send_String("DUST");
+    
+    Uart_Printf("DUST IN\r\n");
+
+    while(Uart2_Get_Char() != 'D');
+    RxBuffer[0] = 'D';
+    for(i = 1; i < 6; i++){
+        RxBuffer[i] = Uart2_Get_Char();
+        Uart_Printf("%x", RxBuffer[i]);
+    }
+    Uart_Printf("\r\n");
+    Uart_Printf("%s\r\n", RxBuffer);
+    Uart_Printf("DUST DATA IN\r\n");
+
+    TaskBar_Time_Show();
+    Lcd_Printf(10, 60, BLACK, WHITE, 4, 5, "DUST : ");
+    Lcd_Printf(60, 140, BLACK, WHITE, 4, 5, "%3d.%d%d ug/m2", RxBuffer[1] * 100 + RxBuffer[2] * 10 + RxBuffer[3], RxBuffer[4], RxBuffer[5]);
+}
+#pragma endregion
+#pragma region Main
 void Main(){
     Uart_Init(115200);
+    Uart2_Init(115200);
     timer0_init();
+    // Timer2_Init();
+    // Timer2_Int_Init();
     RTC_Init();
-    RTC_Tick_Init();
+    // RTC_Tick_Init();
     ALARM_Init(17, 20);
     ALARM_Int_Init();
     gpio_init();
@@ -253,7 +354,7 @@ void Main(){
     Lcd_Select_Frame_Buffer(0);
 
     // Buzzer Test 
-    Sound(C3, 500);
+    // Sound(C3, 500);
     
     // Vibration Motor Test
     Viberate_On();  
@@ -261,8 +362,41 @@ void Main(){
     Viberate_Off();
     delay_ms(500);
 
-    while(1){
+    uint8_t Menu = 1;
 
+    while(1){
+        if(GPGDAT.GPIO_PIN_1){
+            while(GPGDAT.GPIO_PIN_1);
+            Uart_Printf("MENU COUNTED\r\n");
+            Menu = 1;
+            // Menu++;
+            if(Menu == 3){
+                Lcd_Clr_Screen(WHITE);
+                Menu = 0;
+            }
+            else if(Menu == 1){
+                Lcd_Clr_Screen(WHITE);
+            }
+            else {
+                Lcd_Part_Clr_Screen(0, 45, LCD_XSIZE, LCD_YSIZE, WHITE);
+            }
+            // Lcd_Select_Frame_Buffer(0);
+        }
+        switch (Menu)
+        {
+            case 0:
+                Time_Show();
+                break;
+
+            case 1:
+                Temp_Show();
+                break;
+            
+            case 2:
+                Dust_Show();
+                break;
+        }
+        
         // if(Alarm_State){
         //     Viberate_On();
         //     delay_ms(500);
@@ -272,20 +406,33 @@ void Main(){
         // Uart_Printf("%d %d %d\r\n", BCDHOUR.HOUR_10 * 10 + BCDHOUR.HOUR_1, BCDMIN.MIN_10 * 10 + BCDMIN.MIN_1, BCDSEC.SEC_10 * 10 + BCDSEC.SEC_1);
     }
 }
+#pragma endregion
+#pragma region INT_HANDLER
+
+void __attribute__((interrupt("IRQ"))) DMA_Handler(void){
+    rINTSUBMSK |= (0x1 << 18);
+    rINTMSK1 |= (0x1 << 17);
+
+    rSUBSRCPND |= (0x1 << 18);
+    rSRCPND1 |= (0x1 << 17);
+    rINTPND1 |= (0x1 << 17);
+
+    Uart_Printf("DMA 실행 결과\r\n");
+    MemDump(dst, 15);
+
+    rINTSUBMSK &= ~(0x1 << 18);
+    rINTMSK1 &= ~(0x1 << 17);
+}
 
 void __attribute__((interrupt("IRQ"))) TIMER2_Handler(void){
     ClearPending1(BIT_TIMER2);
     Uart_Printf("TIM2 INT\r\n");
-    // if(PWM_Flag)
-    //     GPGDAT.GPIO_PIN_2 = 1;
-    // else
-    //     GPGDAT.GPIO_PIN_2 = 0;
-
-    // PWM_Flag = !PWM_Flag; 
+    
 }
 
 void __attribute__((interrupt("IRQ"))) RTC_TICK(void){
     ClearPending1(BIT_TICK);
+#if 0
     //Uart_Printf("TICK INT\r\n");
     // if(Viberation_duty == 4)
     //     Viberate_On();
@@ -300,41 +447,25 @@ void __attribute__((interrupt("IRQ"))) RTC_TICK(void){
     
 
 
-    if(GPGDAT.GPIO_PIN_1){
-        Lcd_Printf(60, 60, BLACK, WHITE, 4, 7, "TEMP : 20");
-    }
-    else {
-        Lcd_Printf(10, 10, BLACK, WHITE, 4, 3, "%d/%2d/%2d %s", 2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)), wdays[get_weekday(2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)))]);
-        Lcd_Printf(60, 60, BLACK, WHITE, 6, 9, "%02x : %02x", rBCDHOUR, rBCDMIN);
-        Lcd_Printf(400, 150, BLACK, WHITE, 3, 2, "%02x", rBCDSEC);
-    }
+    // if(GPGDAT.GPIO_PIN_1){
+    //     Lcd_Printf(60, 60, BLACK, WHITE, 4, 7, "TEMP : 20");
+    // }
+    // else {
+    //     Lcd_Printf(10, 10, BLACK, WHITE, 4, 3, "%d/%2d/%2d %s", 2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)), wdays[get_weekday(2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)))]);
+    //     Lcd_Printf(60, 60, BLACK, WHITE, 6, 9, "%02x : %02x", rBCDHOUR, rBCDMIN);
+    //     Lcd_Printf(400, 150, BLACK, WHITE, 3, 2, "%02x", rBCDSEC);
+    // }
     // Lcd_Clr_Screen(WHITE);
     // rRTCCON = (0x1C1);
     
     // Uart_Printf("%d\r\n", GPGDAT.GPIO_PIN_1);
     //Uart_Printf("%d %d %d\r\n", BCDHOUR.HOUR_10 * 10 + BCDHOUR.HOUR_1, BCDMIN.MIN_10 * 10 + BCDMIN.MIN_1, BCDSEC.SEC_10 * 10 + BCDSEC.SEC_1);
+#endif
 }
 
 void __attribute__((interrupt("IRQ"))) RTC_ALARM(void){
     ClearPending1(BIT_RTC);
 
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
-    Uart_Printf("ALARM INT\r\n");
     Uart_Printf("ALARM INT\r\n");
 }
 
@@ -353,14 +484,58 @@ void __attribute__((interrupt("IRQ"))) EINT4_7_Handler(void){
 
 void __attribute__((interrupt("IRQ"))) EINT8_23_Handler(void){
     ClearPending1(BIT_EINT8_23);
-    Uart_Printf("MENU Changed!!\r\n");
-    // if(EINTPEND.EINT9 == 1){
-    //     EINTPEND.EINT9 = 1;
-    //     // MENU Change
-        
-    // }
     if(rEINTPEND & (0x1 << 9)){
         rEINTPEND = 0x1 << 9;
         Uart_Printf("MENU Changed!!\r\n");
+        GPGDAT.GPIO_PIN_4 = 0;
     }
 }
+#pragma endregion
+
+// // Global Variables Declaration
+// // žñÀûÁöŽÂ CACHE ¿µ¿ªÀÌ ŸÆŽÒ°Í
+// static	unsigned long src=0x33000000;
+// static	unsigned long dst=0x33100000;
+// static	unsigned int  size = 12; /* word size */
+// static	unsigned long pattern;
+
+// static void DMA0_ISR(void)
+// {
+// 	/* ÀÎÅÍ·ŽÆ® Çã¿ëÇÏÁö ŸÊÀœ on DMA0 */
+// 	rINTSUBMSK |= (0x1<<18); 
+// 	rINTMSK1 |= (0x1<<17);
+	
+// 	/* TO DO: Pendng Clear on DMA0 */
+// 	rSUBSRCPND |= 0x1<<18;
+// 	rSRCPND1 |= 0x1<<17;
+// 	rINTPND1 |= 0x1<<17;
+		
+// 	Uart_Printf("__irq ISRœÇÇà°á°ú  ");	
+// 	MemDump(dst, 12); 	
+	
+// 	/*  TO DO: Stop DMA0 trigger  */
+// 	rDMASKTRIG0 |= 0x1<<2;
+		
+// 	/* Masking Disable on DMA0 */
+// 	rINTSUBMSK &= ~(0x1<<18);
+// 	rINTMSK1 &= ~(0x1<<17);
+
+
+// }
+
+// void Main(void)
+// {	
+// 	char value;
+
+// 	Uart_Init(115200);	
+// 	DMA0_SW_Init();
+	
+// 	/* TODO : ÀÎÅÍ·ŽÆ® º€ÅÍ¿¡ DMA0_ISR ÇÔŒö µî·Ï */
+// 	pISR_DMA0 = (unsigned int)DMA0_ISR;
+			
+// 	/*  ÀÎÅÍ·ŽÆ® Çã¿ë on DMA0 */
+// 	rINTSUBMSK &= ~(0x1<<18);	
+// 	rINTMSK1 &= ~(0x1<<17);
+	
+// 	DMA0_SW_Start();
+// }
