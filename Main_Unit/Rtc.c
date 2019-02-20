@@ -38,6 +38,7 @@ void Set_BCD_Time(unsigned short year, unsigned char mon, unsigned char date,
 
 void Set_BCD_Year(unsigned short year){
     year %= 100;
+    Uart_Printf("real_year = %d\n", year);
     BCDYEAR.YEAR_10 = year / 10;
     BCDYEAR.YEAR_1 = year % 10;
 }
@@ -63,6 +64,7 @@ void Set_BCD_Minute(unsigned char min){
 }
 
 void Set_BCD_Second(unsigned char sec){
+    sec += 1;
     BCDSEC.SEC_10 = sec / 10;
     BCDSEC.SEC_1 = sec % 10;
 }

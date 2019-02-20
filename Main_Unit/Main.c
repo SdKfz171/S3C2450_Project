@@ -40,14 +40,20 @@
 uint8_t Viberation_duty = 4;
 uint8_t Old_Sec = 0;
 
+int Menu = 0;
+
 bool PWM_Flag = true;
 bool Lcd_Refresh = false;
-bool Alarm_State = true;
+bool Alarm_State = false;
 
 static unsigned long src = 0x33000000;
 static unsigned long dst = 0x33100000;
 static unsigned int size = 6;
 static unsigned long pattern;
+
+uint8_t Response[6];
+uint8_t S_Buffer[14];
+uint8_t A_Buffer[4];
 
 #pragma region Prototype
 void __attribute__((interrupt("IRQ"))) RTC_TICK(void);
@@ -57,6 +63,7 @@ void __attribute__((interrupt("IRQ"))) TIMER2_Handler(void);
 void __attribute__((interrupt("IRQ"))) EINT0_Handler(void);
 void __attribute__((interrupt("IRQ"))) EINT4_7_Handler(void);
 void __attribute__((interrupt("IRQ"))) EINT8_23_Handler(void);
+void __attribute__((interrupt("IRQ"))) UART2_RX_Handler(void);
 #pragma endregion
 #pragma region Init_Function
 void gpio_init(){
@@ -72,7 +79,9 @@ void gpio_init(){
     GPBCON.GPIO_PIN_2 = OUTPUT;
     GPBDAT.GPIO_PIN_1 = HIGH;
 
-    GPFCON.GPIO_PIN_0 = ALTERNATIVE_0;
+    GPFCON.GPIO_PIN_0 = INPUT;
+    GPFCON.GPIO_PIN_1 = INPUT;
+    GPFCON.GPIO_PIN_3 = INPUT;
     GPFCON.GPIO_PIN_4 = ALTERNATIVE_0;
 }
 
@@ -119,6 +128,14 @@ void DMA_Init(){
     DMA0_HW_Start();
 }
 
+void Uart2_RX_INT_Init(){
+    rINTSUBMSK &= ~(0x1 << 6);
+    rINTSUBMSK &= ~(0x1 << 8);
+    rINTMSK1 &= ~(0x1 << 15);
+
+    pISR_UART2 = (unsigned)UART2_RX_Handler;
+}
+
 void RTC_Init(){
     uint16_t year = 19;
     uint8_t month = 2;
@@ -143,7 +160,7 @@ void RTC_Init(){
 
     //Uart_Printf("RTCCON = %x\r\n", RTCCON);
 
-    Set_BCD_Time(year, month, date, hour, minute, second);
+    // Set_BCD_Time(year, month, date, hour, minute, second);
 }
 
 void RTC_Tick_Init(){
@@ -193,9 +210,9 @@ void timer0_init(){
 
 void Timer2_Init(){
     // PWM 진동모터
-    TCFG0.PRESCALER1 = (128 - 1);
+    TCFG0.PRESCALER1 = (33 - 1);
     TCFG1.MUX2 = 0;
-    rTCNTB2 = (PCLK / 128 / 2) / 20 - 1;
+    rTCNTB2 = (0xFFFF);
     TCON.TIM2_MANUAL_UPDATE = 1;
     
     TCON.TIM2_AUTO_RELOAD = 1;
@@ -264,9 +281,14 @@ void Viberate_Off(){
     GPGDAT.GPIO_PIN_2 = 0;
 }
 
+int Uart2_Check_Overrun_Error(){
+    return (rUERSTAT2 & 0x01);
+}
+
 void Time_Show(){
+    // Uart_Printf("TIME SHOW\r\n");
     if(Old_Sec != rBCDSEC) {
-        Lcd_Printf(10, 10, BLACK, WHITE, 4, 3, "%d/%2d/%2d %s", 2000 + BCDYEAR.YEAR_10 * 10 + BCDYEAR.YEAR_1, BCDMIN.MIN_10 * 10 + BCDMIN.MIN_1, BCDDATE.DATE_10 * 10 + BCDDATE.DATE_1, wdays[get_weekday(2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)))]);
+        Lcd_Printf(10, 10, BLACK, WHITE, 4, 3, "%d/%2d/%2d %s", 2000 + BCDYEAR.YEAR_10 * 10 + BCDYEAR.YEAR_1, BCDMON.MON_10 * 10 + BCDMON.MON_1, BCDDATE.DATE_10 * 10 + BCDDATE.DATE_1, wdays[get_weekday(2000 + BCDYEAR.YEAR_10 * 10 + BCDYEAR.YEAR_1, BCDMON.MON_10 * 10 + BCDMON.MON_1, BCDDATE.DATE_10 * 10 + BCDDATE.DATE_1)]);
         Lcd_Printf(60, 60, BLACK, WHITE, 6, 9, "%02x : %02x", rBCDHOUR, rBCDMIN);
         Lcd_Printf(400, 150, BLACK, WHITE, 3, 2, "%02x", rBCDSEC);
 
@@ -287,56 +309,81 @@ void Temp_Show(){
     uint8_t RxBuffer[6];
     uint8_t i = 0;
 
-    Uart2_Send_String("TEMP");
+    Uart_Send_String("TEMP");
+
+    RxBuffer[0] = Uart_Get_Char();
+    // Uart_Printf("%x", RxBuffer[0]);
+    RxBuffer[1] = Uart_Get_Char();
+    // Uart_Printf("%x", RxBuffer[1]);
+    RxBuffer[2] = Uart_Get_Char();
+    // Uart_Printf("%x", RxBuffer[2]);
+    RxBuffer[3] = Uart_Get_Char();
+    // Uart_Printf("%x", RxBuffer[3]);
+    RxBuffer[4] = Uart_Get_Char();
+    // Uart_Printf("%x", RxBuffer[4]);
+    RxBuffer[5] = Uart_Get_Char();
+    // Uart_Printf("%x", RxBuffer[5]);
     
-    Uart_Printf("TEMP IN\r\n");
+    // Uart2_Send_String("TEMP");
 
-    while(Uart2_Get_Char() != 'H');
-    RxBuffer[0] = 'H';
-    Uart_Printf("%x", RxBuffer[0]);
-    for(i = 1; i < 6; i++){
-        RxBuffer[i] = Uart2_Get_Char();
-        Uart_Printf("%x", RxBuffer[i]);
-    }
-    
-    Uart_Printf("\r\n");
+    // Uart_Printf("TEMP IN\r\n");
 
-    Uart_Printf("TEMP DATA IN\r\n");
+    // Uart_Printf("\r\n");
 
-    Uart_Printf("%s\r\n", RxBuffer);
+    // Uart_Printf("TEMP DATA IN\r\n");
+
+    // Uart_Printf("%s\r\n", RxBuffer);
     
     TaskBar_Time_Show();
-    Lcd_Printf(10, 50, BLACK, WHITE, 4, 5, "TEMP : %dC", RxBuffer[4]);
-    Lcd_Printf(10, 150, BLACK, WHITE, 4, 5, "HUMI : %d%%", RxBuffer[1]);
+    Lcd_Printf(10, 50, BLACK, WHITE, 4, 5, "TEMP : %2dC", RxBuffer[4]);
+    Lcd_Printf(10, 150, BLACK, WHITE, 4, 5, "HUMI : %2d%%", RxBuffer[1]);
 }
 
 void Dust_Show(){
     uint8_t RxBuffer[6];
     uint8_t i = 0;
 
-    Uart2_Send_String("DUST");
-    
-    Uart_Printf("DUST IN\r\n");
+    Uart_Send_String("DUST");
 
-    while(Uart2_Get_Char() != 'D');
-    RxBuffer[0] = 'D';
-    for(i = 1; i < 6; i++){
-        RxBuffer[i] = Uart2_Get_Char();
-        Uart_Printf("%x", RxBuffer[i]);
-    }
+    RxBuffer[0] = Uart_Get_Char();
+    // Uart_Printf("%x", RxBuffer[0]);
+    RxBuffer[1] = Uart_Get_Char();
+    // Uart_Printf("%x", RxBuffer[1]);
+    RxBuffer[2] = Uart_Get_Char();
+    // Uart_Printf("%x", RxBuffer[2]);
+    RxBuffer[3] = Uart_Get_Char();
+    // Uart_Printf("%x", RxBuffer[3]);
+    RxBuffer[4] = Uart_Get_Char();
+    // Uart_Printf("%x", RxBuffer[4]);
+    RxBuffer[5] = Uart_Get_Char();
+    // Uart_Printf("%x", RxBuffer[5]);
+
+    // Uart_Printf("DUST IN\r\n");
+
     Uart_Printf("\r\n");
-    Uart_Printf("%s\r\n", RxBuffer);
-    Uart_Printf("DUST DATA IN\r\n");
+
+    // Uart_Printf("DUST DATA IN\r\n");
 
     TaskBar_Time_Show();
     Lcd_Printf(10, 60, BLACK, WHITE, 4, 5, "DUST : ");
     Lcd_Printf(60, 140, BLACK, WHITE, 4, 5, "%3d.%d%d ug/m2", RxBuffer[1] * 100 + RxBuffer[2] * 10 + RxBuffer[3], RxBuffer[4], RxBuffer[5]);
 }
+
+void Alarm_Show(){
+    // Uart_Printf("GPFDAT GP0 : %d\r\n", GPFDAT.GPIO_PIN_0);
+    if(GPFDAT.GPIO_PIN_0 || GPFDAT.GPIO_PIN_1){
+        Lcd_Printf(10, 80, BLACK, WHITE, 7, 4, "ALARM ON");
+        Viberate_On();
+        Sound(C6, 1);
+    } 
+}
 #pragma endregion
+
 #pragma region Main
 void Main(){
     Uart_Init(115200);
     Uart2_Init(115200);
+    // Uart2_RX_INT_Init();
     timer0_init();
     // Timer2_Init();
     // Timer2_Int_Init();
@@ -362,26 +409,106 @@ void Main(){
     Viberate_Off();
     delay_ms(500);
 
-    uint8_t Menu = 1;
+    uint8_t i = 0;
 
+    uint16_t set_year = 0;
+    uint8_t set_month = 0;
+    uint8_t set_date = 0;
+    uint8_t set_hour = 0;
+    uint8_t set_min = 0;
+    uint8_t set_sec = 0;
+
+    uint8_t alm_hour = 0;
+    uint8_t alm_min = 0;
+    // Time_Show();
+
+    uint8_t first_data;
+    uint16_t start = 0;
+    uint16_t last = 0;
     while(1){
-        if(GPGDAT.GPIO_PIN_1){
-            while(GPGDAT.GPIO_PIN_1);
-            Uart_Printf("MENU COUNTED\r\n");
-            Menu = 1;
-            // Menu++;
-            if(Menu == 3){
-                Lcd_Clr_Screen(WHITE);
-                Menu = 0;
-            }
-            else if(Menu == 1){
-                Lcd_Clr_Screen(WHITE);
-            }
-            else {
-                Lcd_Part_Clr_Screen(0, 45, LCD_XSIZE, LCD_YSIZE, WHITE);
-            }
-            // Lcd_Select_Frame_Buffer(0);
+        if(!GPFDAT.GPIO_PIN_1){
+            Viberate_Off();
         }
+        if(!GPFDAT.GPIO_PIN_0 && Alarm_State){
+            Lcd_Clr_Screen(WHITE);
+            Alarm_State = false;
+            Viberate_Off();
+            Menu = 0;
+        }
+        if(Alarm_State == true){
+            // Lcd_Clr_Screen(WHITE);
+            // Alarm_State = false;
+            Menu = 3;
+        }
+        if(rUTRSTAT1 & (0x1)){
+            first_data = Uart_Get_Char();
+            if(first_data == 'S'){
+                for(i = 0; i < 14; i++){
+                    S_Buffer[i] = Uart_Get_Char();
+                    // Uart_Printf("%x ", S_Buffer[i]);
+                }
+
+                set_month = S_Buffer[0] * 10 + S_Buffer[1];
+                set_date = S_Buffer[2] * 10 + S_Buffer[3];
+                set_year = S_Buffer[4] * 1000 + S_Buffer[5] * 100 + S_Buffer[6] * 10 + S_Buffer[7];
+                set_hour = S_Buffer[8] * 10 + S_Buffer[9];
+                set_min = S_Buffer[10] * 10 + S_Buffer[11];
+                set_sec = S_Buffer[12] * 10 + S_Buffer[13];
+
+                Uart_Printf("Year : %d\n", set_year);
+                Uart_Printf("Month : %d\n", set_month);
+                Uart_Printf("Date : %d\n", set_date);
+                Uart_Printf("Hour : %d\n", set_hour);
+                Uart_Printf("Min : %d\n", set_min);
+                Uart_Printf("Sec : %d\n", set_sec);
+
+                Set_BCD_Time(set_year, set_month, set_date, set_hour, set_min, set_sec);
+            }
+            else if(first_data == 'A'){
+                for(i = 0; i < 4; i++){
+                    A_Buffer[i] = Uart_Get_Char();
+                }
+
+                alm_hour = A_Buffer[0] * 10 + A_Buffer[1];
+                alm_min = A_Buffer[2] * 10 + A_Buffer[3];
+
+                Uart_Printf("Alarm Hour : %d\n", alm_hour);
+                Uart_Printf("Alarm min : %d\n", alm_min);
+
+                if(alm_hour > 23 || alm_min > 59)
+                    Lcd_Printf(10, 200, BLACK, WHITE, 4, 4, "ALARM SET FAIL");
+                else {
+                    Set_ALM_Time(alm_hour, alm_min, 0);
+                    Lcd_Printf(10, 200, BLACK, WHITE, 4, 4, "ALARM SETTED!!");
+                }
+            }
+            else if(first_data == 'M'){
+                if(Alarm_State){
+                    Alarm_State = false;
+                    Viberate_Off();
+                    Menu = 0;
+                }
+                // Uart_Printf("MENU COUNTED\r\n");
+                Menu++;
+
+                if(Menu == 3){
+                    Lcd_Clr_Screen(WHITE);
+                    Menu = 0;
+                }
+                else if(Menu == 1){
+                    Lcd_Clr_Screen(WHITE);
+                }
+                else {
+                    // if(Menu == 4){
+                    //     Menu = 0;
+                    //     Viberate_Off();
+                    // }
+                    Lcd_Part_Clr_Screen(0, 45, LCD_XSIZE, LCD_YSIZE, WHITE);
+                }
+                // Lcd_Select_Frame_Buffer(0);
+            }
+        }
+
         switch (Menu)
         {
             case 0:
@@ -394,6 +521,10 @@ void Main(){
             
             case 2:
                 Dust_Show();
+                break;
+            
+            case 3:
+                Alarm_Show();
                 break;
         }
         
@@ -467,6 +598,7 @@ void __attribute__((interrupt("IRQ"))) RTC_ALARM(void){
     ClearPending1(BIT_RTC);
 
     Uart_Printf("ALARM INT\r\n");
+    Alarm_State = true;
 }
 
 void __attribute__((interrupt("IRQ"))) EINT0_Handler(void){
@@ -479,6 +611,7 @@ void __attribute__((interrupt("IRQ"))) EINT4_7_Handler(void){
     if(rEINTPEND & (0x1 << 4)){
         rEINTPEND = (0x1 << 4);
         Uart_Printf("EINT 4!!!\r\n");
+        Viberate_Off();
     }
 }
 
@@ -490,6 +623,34 @@ void __attribute__((interrupt("IRQ"))) EINT8_23_Handler(void){
         GPGDAT.GPIO_PIN_4 = 0;
     }
 }
+
+void __attribute__((interrupt("IRQ"))) UART2_RX_Handler(void){
+    rINTSUBMSK |= (0x1 << 6);
+    rINTMSK1 |= (0x1 << 15);
+
+    rSUBSRCPND |= (0x1 << 6);
+    rSRCPND1 |= (0x1 << 15);
+    rINTPND1 |= (0x1 << 15);
+
+    Uart_Send_String("Uart INT Received\n");
+
+    if(Uart2_Check_Overrun_Error())
+        Uart_Send_Byte('*');
+        Uart_Send_Byte('\n');
+
+    if(rURXH2 == 'A'){
+
+    }else if(rURXH2 == 'S'){
+        
+    }
+    
+    Uart_Printf("%c\r\n", rURXH2);
+
+    rINTSUBMSK &= ~(0x1 << 6);
+    rINTMSK1 &= ~(0x1 << 15);
+    rUCON2 |= (0x1 << 6);
+}
+
 #pragma endregion
 
 // // Global Variables Declaration
