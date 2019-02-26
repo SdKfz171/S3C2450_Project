@@ -80,6 +80,7 @@ osThreadId myTask03Handle;
 osMutexId myMutex01Handle;
 /* USER CODE BEGIN PV */
 uint8_t Buffer[BUFSIZ];
+uint8_t Buffer2[BUFSIZ];
 uint8_t Command[BUFSIZ];
 /* USER CODE END PV */
 
@@ -100,6 +101,16 @@ void StartTask03(void const * argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+uint16_t year;
+uint8_t month;
+uint8_t date;
+uint8_t hour;
+uint8_t min;
+uint8_t sec;
+
+uint8_t hour_a = 0;
+uint8_t min_a = 0;
+
 #define TIMINGS_COUNT	85
 
 uint8_t HUMI[2] = { 0 };
@@ -112,7 +123,6 @@ typedef enum
 	INPUT = GPIO_MODE_INPUT
 } Pinmode;
 
-uint32_t Limit_Value = 0;
 int dht11_data[5] = { 0, 0, 0, 0, 0 };			// dht11 data array [0, 1] => Humidity, [2, 3] => Temperature, [5] => Checksum 
 
 void Gpio_Pinmode(GPIO_TypeDef * port, uint32_t pin, uint32_t mode){
@@ -195,7 +205,7 @@ void Read_Dht11_Data()
 	}
 }
 
-float Read_Dust_Data(){
+void Read_Dust_Data(){
 	int sampling_time = 280;
 	int delta_time = 40;
 	int sleep_time = 9680;
@@ -212,7 +222,7 @@ float Read_Dust_Data(){
 	HAL_GPIO_WritePin(LED_PIN_GPIO_Port, LED_PIN_Pin, 1);
 	DWT_Delay_us(sleep_time);
 	
-	calc_voltage = vo_measured * (5.f / 1024.f);
+	calc_voltage = vo_measured * (5.f / 4096.f);
 	
 	dust_density = 0.17f * calc_voltage - 0.1f;
 	dust_density *= 1000;
@@ -260,7 +270,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	DWT_Delay_Init ();
 	
-	printf("PROGRAM START\r\n");
+//	printf("START\r\n");
 	
 	HAL_UART_Receive_IT(&huart1, Command, 4);
 //	HAL_UART_Receive_DMA(&huart1, Command, BUFSIZ);
@@ -516,7 +526,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4|LED_PIN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4|LED_PIN_Pin|SIGNAL_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : PA1 */
   GPIO_InitStruct.Pin = GPIO_PIN_1;
@@ -530,8 +540,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PA4 LED_PIN_Pin */
-  GPIO_InitStruct.Pin = GPIO_PIN_4|LED_PIN_Pin;
+  /*Configure GPIO pins : PA4 LED_PIN_Pin SIGNAL_Pin */
+  GPIO_InitStruct.Pin = GPIO_PIN_4|LED_PIN_Pin|SIGNAL_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -573,6 +583,7 @@ void StartDefaultTask(void const * argument)
 	/* Infinite loop */
   for(;;)
   {
+//		HAL_GPIO_WritePin(SIGNAL_GPIO_Port, SIGNAL_Pin, 0);
 		xLastWakeTime = xTaskGetTickCount();
 		Read_Dht11_Data();
 		Read_Dust_Data();
@@ -598,26 +609,47 @@ void StartTask02(void const * argument)
   /* Infinite loop */
   for(;;)
   {
+//		HAL_GPIO_WritePin(SIGNAL_GPIO_Port, SIGNAL_Pin, 0);
 		HAL_UART_Receive(&huart3, Buffer, BUFSIZ, 0XFF);
 		if(strlen(Buffer) > 0){
 			if(strlen(Buffer) < 6){
-				printf("%02x", 'A');
-				if(strlen(Buffer) < 5)
-					printf("%02x%02x%02x%02x", 0, Buffer[0] - 0x30, Buffer[2] - 0x30, Buffer[3] - 0x30);
-				else 
-					printf("%02x%02x%02x%02x", Buffer[0] - 0x30, Buffer[1] - 0x30, Buffer[3] - 0x30, Buffer[4] - 0x30);
+				hour_a = 0;
+				min_a = 0;
+				printf("%c", 'A');
+				if(strlen(Buffer) < 5){
+					hour_a = (Buffer[0] - 0x30);
+					min_a = (Buffer[2] - 0x30) * 10 + (Buffer[3] - 0x30);				
+				}
+				else {
+					hour_a = (Buffer[0] - 0x30) * 10 + (Buffer[1] - 0x30);
+					min_a = (Buffer[3] - 0x30) * 10 + (Buffer[4] - 0x30);
+				}
+				printf("%c%c%c%c", hour_a / 10, hour_a % 10, min_a / 10, min_a % 10);					
+//				printf("%c%c", hour, min);
 			}
 			else {
 				split_count = 0;
-				printf("Buffer : [%s]\r\n", Buffer);
+//				printf("Buffer : [%s]\r\n", Buffer);
 				if(strlen(Buffer) == 19){
 					for(int i = 0; i < strlen(Buffer); i++){
 						if(Buffer[i] == '/' || Buffer[i] == ':')
 							split_count++;
 					}
-					if(split_count == 5)
-						printf("%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", 'S', Buffer[0] - 0x30, Buffer[1] - 0x30, Buffer[3] - 0x30, Buffer[4] - 0x30, Buffer[6] - 0x30, Buffer[7] - 0x30, Buffer[8] - 0x30, Buffer[9] - 0x30, Buffer[11] - 0x30, Buffer[12] - 0x30, Buffer[14] - 0x30, Buffer[15] - 0x30, Buffer[17] - 0x30, Buffer[18] - 0x30);
-					//				S		M		M		d		d		y		y		y		y		H		H		m		m		s		s						M									M									d									d									y									y									y									y									H										H									m										m									s										s
+					if(split_count == 5){
+						year = (Buffer[6] - 0x30) * 1000 + (Buffer[7] - 0x30) * 100 + (Buffer[8] - 0x30) * 10 + (Buffer[9] - 0x30);
+						month = (Buffer[0] - 0x30) * 10 + (Buffer[1] - 0x30);
+						date = (Buffer[3] - 0x30) * 10 + (Buffer[4] - 0x30);
+						hour = (Buffer[11] - 0x30) * 10 + (Buffer[12] - 0x30); 
+						min = (Buffer[14] - 0x30) * 10 + (Buffer[15] - 0x30);
+						sec = (Buffer[17] - 0x30) * 10 + (Buffer[18] - 0x30);
+						
+						if(year > 2000 && month < 13 && month > 0 && date < 32 && date > 0 && hour < 24 && min < 60 && sec < 60){
+//							printf("%c%c%c%c%c%c%c", 'S', month, date, year % 100, hour, min, sec);
+							printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c", 'S', Buffer[0] - 0x30, Buffer[1] - 0x30, Buffer[3] - 0x30, Buffer[4] - 0x30, Buffer[6] - 0x30, Buffer[7] - 0x30, Buffer[8] - 0x30, Buffer[9] - 0x30, Buffer[11] - 0x30, Buffer[12] - 0x30, Buffer[14] - 0x30, Buffer[15] - 0x30, Buffer[17] - 0x30, Buffer[18] - 0x30);
+						//				 S M M d d y y y y H H m m s s				M									M									d									d									y									y									y									y									H										H									m										m									s										s
+						}							
+					}
+					
 				}
 			}
 //			printf("Buffer : [%s]\r\n", Buffer);
@@ -625,11 +657,31 @@ void StartTask02(void const * argument)
 //			sprintf(Buffer, "");
 		}		
 		if(strcmp(Command, "TEMP") == 0){
-			printf("%02x%02x%02x%02x%02x%02x",0x48, dht11_data[0], dht11_data[1], 0x54, dht11_data[2], dht11_data[3]);
+			printf("%c%c%c%c%c%c", 0x48, dht11_data[0], dht11_data[1], 0x54, dht11_data[2], dht11_data[3]);
 			memset((uint8_t *)Command, 0, BUFSIZ);
 			HAL_UART_Receive_IT(&huart1, Command, 4);
 		}
-		
+		if(strcmp(Command, "DUST") == 0){
+			uint8_t dust_100 = ((uint16_t)dust_density / 100);
+			uint8_t dust_10 = (((uint16_t)dust_density % 100) / 10);
+			uint8_t dust_1 = ((uint16_t)dust_density % 10);
+			uint8_t dust_u1 = ((uint32_t)(dust_density * 10.f)) % 10;
+			uint8_t dust_u10 = ((uint32_t)(dust_density * 100.f)) % 10;
+			
+			printf("%c%c%c%c%c%c", 'D', dust_100, dust_10, dust_1, dust_u1, dust_u10);
+			memset((uint8_t *)Command, 0, BUFSIZ);
+			HAL_UART_Receive_IT(&huart1, Command, 4);
+		}
+		if(strcmp(Command, "SETA") == 0){
+			printf("%c%c%c", 'A', hour, min);
+			memset((uint8_t *)Command, 0, BUFSIZ);
+			HAL_UART_Receive_IT(&huart1, Command, 4);
+		}
+		if(strcmp(Command, "SETT") == 0){
+			printf("%c%c%c%c%c%c%c", 'S', month, date, year % 100, hour, min, sec);
+			memset((uint8_t *)Command, 0, BUFSIZ);
+			HAL_UART_Receive_IT(&huart1, Command, 4);
+		}
 		vTaskDelay(10);
   }
   /* USER CODE END StartTask02 */

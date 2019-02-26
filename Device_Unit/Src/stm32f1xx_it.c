@@ -198,12 +198,16 @@ void SysTick_Handler(void)
 void EXTI1_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI1_IRQn 0 */
-	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) == 1)
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 1);
+	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_3) == 1){
+		HAL_GPIO_WritePin(SIGNAL_GPIO_Port, SIGNAL_Pin, 1);
+		printf("M");
+	}
+//	printf("IN\r\n");
   /* USER CODE END EXTI1_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_1);
+	
   /* USER CODE BEGIN EXTI1_IRQn 1 */
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 0);
+	
   /* USER CODE END EXTI1_IRQn 1 */
 }
 

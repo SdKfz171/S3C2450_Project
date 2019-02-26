@@ -90,6 +90,8 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define LED_PIN_Pin GPIO_PIN_6
 #define LED_PIN_GPIO_Port GPIOA
+#define SIGNAL_Pin GPIO_PIN_11
+#define SIGNAL_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

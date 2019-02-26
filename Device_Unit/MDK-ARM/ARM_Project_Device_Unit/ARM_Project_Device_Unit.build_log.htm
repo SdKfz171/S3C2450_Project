@@ -22,12 +22,19 @@ Dialog DLL:      TCM.DLL V1.35.1.0
  
 <h2>Project:</h2>
 C:\Users\DELL\Documents\CoretexSource\CubeSource\ARM_Project_Device_Unit\ARM_Project_Device_Unit\MDK-ARM\ARM_Project_Device_Unit.uvprojx
-Project File Date:  02/14/2019
+Project File Date:  02/16/2019
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 6 (build 750)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'ARM_Project_Device_Unit'
-"ARM_Project_Device_Unit\ARM_Project_Device_Unit.axf" - 0 Error(s), 0 Warning(s).
+compiling stm32f1xx_it.c...
+../Src/stm32f1xx_it.c(202): warning:  #188-D: enumerated type mixed with another type
+  		HAL_GPIO_WritePin(SIGNAL_GPIO_Port, SIGNAL_Pin, 1);
+../Src/stm32f1xx_it.c: 1 warning, 0 errors
+linking...
+Program Size: Code=13124 RO-data=388 RW-data=152 ZI-data=5696  
+FromELF: creating hex file...
+"ARM_Project_Device_Unit\ARM_Project_Device_Unit.axf" - 0 Error(s), 1 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -50,7 +57,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.1.2
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>
