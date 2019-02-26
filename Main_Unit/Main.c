@@ -37,21 +37,12 @@
 #define WHITE_P 0xFFFF
 #pragma endregion
 
-uint8_t Viberation_duty = 4;
 uint8_t Old_Sec = 0;
 
 int Menu = 0;
 
-bool PWM_Flag = true;
-bool Lcd_Refresh = false;
 bool Alarm_State = false;
 
-static unsigned long src = 0x33000000;
-static unsigned long dst = 0x33100000;
-static unsigned int size = 6;
-static unsigned long pattern;
-
-uint8_t Response[6];
 uint8_t S_Buffer[14];
 uint8_t A_Buffer[4];
 
@@ -68,7 +59,6 @@ void __attribute__((interrupt("IRQ"))) UART2_RX_Handler(void);
 #pragma region Init_Function
 void gpio_init(){
     // LED INIT
-    GPGCON.GPIO_PIN_1 = ALTERNATIVE_0;  // 메뉴 전환 인터럽트 핀
     GPGCON.GPIO_PIN_2 = OUTPUT;
     GPGCON.GPIO_PIN_4 = OUTPUT;
     GPGCON.GPIO_PIN_5 = OUTPUT;
@@ -114,26 +104,6 @@ void EXTI_Init(){
     pISR_EINT0 = (unsigned)EINT0_Handler;
     pISR_EINT4_7 = (unsigned)EINT4_7_Handler;
     pISR_EINT8_23 = (unsigned)EINT8_23_Handler;
-}
-
-void DMA_Init(){
-    Uart2_DMA_Init(115200);
-    DMA0_UART_Init();
-    
-    rINTSUBMSK &= ~(0x1 << 18);
-    rINTMSK1 &= ~(0x1 << 17);
-
-    pISR_DMA0 = (unsigned)DMA_Handler;
-
-    DMA0_HW_Start();
-}
-
-void Uart2_RX_INT_Init(){
-    rINTSUBMSK &= ~(0x1 << 6);
-    rINTSUBMSK &= ~(0x1 << 8);
-    rINTMSK1 &= ~(0x1 << 15);
-
-    pISR_UART2 = (unsigned)UART2_RX_Handler;
 }
 
 void RTC_Init(){
@@ -208,28 +178,6 @@ void timer0_init(){
     TCON.TIM0_START = 1;
 }
 
-void Timer2_Init(){
-    // PWM 진동모터
-    TCFG0.PRESCALER1 = (33 - 1);
-    TCFG1.MUX2 = 0;
-    rTCNTB2 = (0xFFFF);
-    TCON.TIM2_MANUAL_UPDATE = 1;
-    
-    TCON.TIM2_AUTO_RELOAD = 1;
-    TCON.TIM2_MANUAL_UPDATE = 0;
-    TCON.TIM2_START = 0;
-}
-
-void Timer2_Int_Init(){
-    INTMOD1.INT_TIMER2 = IRQ;
-
-    SRCPND1.INT_TIMER2 = 1;
-    INTPND1.INT_TIMER2 = 1;    
-
-    INTMSK1.INT_TIMER2 = 0;
-
-    pISR_TIMER2 = (unsigned)TIMER2_Handler;
-}
 #pragma endregion
 #pragma region PV_Function
 void delay_us(int us){
@@ -279,10 +227,6 @@ void Viberate_On(){
 
 void Viberate_Off(){
     GPGDAT.GPIO_PIN_2 = 0;
-}
-
-int Uart2_Check_Overrun_Error(){
-    return (rUERSTAT2 & 0x01);
 }
 
 void Time_Show(){
@@ -382,13 +326,8 @@ void Alarm_Show(){
 #pragma region Main
 void Main(){
     Uart_Init(115200);
-    Uart2_Init(115200);
-    // Uart2_RX_INT_Init();
     timer0_init();
-    // Timer2_Init();
-    // Timer2_Int_Init();
     RTC_Init();
-    // RTC_Tick_Init();
     ALARM_Init(17, 20);
     ALARM_Int_Init();
     gpio_init();
@@ -527,14 +466,6 @@ void Main(){
                 Alarm_Show();
                 break;
         }
-        
-        // if(Alarm_State){
-        //     Viberate_On();
-        //     delay_ms(500);
-        //     Viberate_Off();
-        //     delay_ms(500);
-        // }
-        // Uart_Printf("%d %d %d\r\n", BCDHOUR.HOUR_10 * 10 + BCDHOUR.HOUR_1, BCDMIN.MIN_10 * 10 + BCDMIN.MIN_1, BCDSEC.SEC_10 * 10 + BCDSEC.SEC_1);
     }
 }
 #pragma endregion
@@ -563,35 +494,6 @@ void __attribute__((interrupt("IRQ"))) TIMER2_Handler(void){
 
 void __attribute__((interrupt("IRQ"))) RTC_TICK(void){
     ClearPending1(BIT_TICK);
-#if 0
-    //Uart_Printf("TICK INT\r\n");
-    // if(Viberation_duty == 4)
-    //     Viberate_On();
-    // else if(Viberation_duty == 2)
-    //     Viberate_Off();
-    // else if(Viberation_duty == 0)
-    //     Viberation_duty = 5;
-
-    // Viberation_duty--;
-    
-    // LCD REFRESH
-    
-
-
-    // if(GPGDAT.GPIO_PIN_1){
-    //     Lcd_Printf(60, 60, BLACK, WHITE, 4, 7, "TEMP : 20");
-    // }
-    // else {
-    //     Lcd_Printf(10, 10, BLACK, WHITE, 4, 3, "%d/%2d/%2d %s", 2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)), wdays[get_weekday(2000 + ((rBCDYEAR >> 4) * 10) + (rBCDYEAR & (0xF)), ((rBCDMON >> 4) * 10) + (rBCDMON & (0xF)), ((rBCDDATE >> 4) * 10) + (rBCDDATE & (0xF)))]);
-    //     Lcd_Printf(60, 60, BLACK, WHITE, 6, 9, "%02x : %02x", rBCDHOUR, rBCDMIN);
-    //     Lcd_Printf(400, 150, BLACK, WHITE, 3, 2, "%02x", rBCDSEC);
-    // }
-    // Lcd_Clr_Screen(WHITE);
-    // rRTCCON = (0x1C1);
-    
-    // Uart_Printf("%d\r\n", GPGDAT.GPIO_PIN_1);
-    //Uart_Printf("%d %d %d\r\n", BCDHOUR.HOUR_10 * 10 + BCDHOUR.HOUR_1, BCDMIN.MIN_10 * 10 + BCDMIN.MIN_1, BCDSEC.SEC_10 * 10 + BCDSEC.SEC_1);
-#endif
 }
 
 void __attribute__((interrupt("IRQ"))) RTC_ALARM(void){
@@ -652,51 +554,3 @@ void __attribute__((interrupt("IRQ"))) UART2_RX_Handler(void){
 }
 
 #pragma endregion
-
-// // Global Variables Declaration
-// // žñÀûÁöŽÂ CACHE ¿µ¿ªÀÌ ŸÆŽÒ°Í
-// static	unsigned long src=0x33000000;
-// static	unsigned long dst=0x33100000;
-// static	unsigned int  size = 12; /* word size */
-// static	unsigned long pattern;
-
-// static void DMA0_ISR(void)
-// {
-// 	/* ÀÎÅÍ·ŽÆ® Çã¿ëÇÏÁö ŸÊÀœ on DMA0 */
-// 	rINTSUBMSK |= (0x1<<18); 
-// 	rINTMSK1 |= (0x1<<17);
-	
-// 	/* TO DO: Pendng Clear on DMA0 */
-// 	rSUBSRCPND |= 0x1<<18;
-// 	rSRCPND1 |= 0x1<<17;
-// 	rINTPND1 |= 0x1<<17;
-		
-// 	Uart_Printf("__irq ISRœÇÇà°á°ú  ");	
-// 	MemDump(dst, 12); 	
-	
-// 	/*  TO DO: Stop DMA0 trigger  */
-// 	rDMASKTRIG0 |= 0x1<<2;
-		
-// 	/* Masking Disable on DMA0 */
-// 	rINTSUBMSK &= ~(0x1<<18);
-// 	rINTMSK1 &= ~(0x1<<17);
-
-
-// }
-
-// void Main(void)
-// {	
-// 	char value;
-
-// 	Uart_Init(115200);	
-// 	DMA0_SW_Init();
-	
-// 	/* TODO : ÀÎÅÍ·ŽÆ® º€ÅÍ¿¡ DMA0_ISR ÇÔŒö µî·Ï */
-// 	pISR_DMA0 = (unsigned int)DMA0_ISR;
-			
-// 	/*  ÀÎÅÍ·ŽÆ® Çã¿ë on DMA0 */
-// 	rINTSUBMSK &= ~(0x1<<18);	
-// 	rINTMSK1 &= ~(0x1<<17);
-	
-// 	DMA0_SW_Start();
-// }
